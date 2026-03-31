@@ -1,0 +1,272 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 844px;
+  background: var(--app);
+  overflow: hidden;
+}
+
+/* ── Room environment ──────────────────────────────────────────────────── */
+.roomEnv {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Perspective room box drawn in CSS */
+.roomBg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.wallBack {
+  position: absolute;
+  left: 14%; right: 14%; top: 8%; bottom: 30%;
+  background: #FAF9F6;
+  border: 0.5px solid rgba(0,0,0,0.04);
+}
+.floor {
+  position: absolute;
+  left: 0; right: 0; bottom: 0; height: 34%;
+  background: linear-gradient(180deg, #EDE9E2 0%, #E4DFD7 100%);
+  clip-path: polygon(8% 0%, 92% 0%, 100% 100%, 0% 100%);
+}
+.wallLeft {
+  position: absolute;
+  left: 0; top: 8%; bottom: 0; width: 15%;
+  background: linear-gradient(90deg, #EEEBE4 0%, #F5F3EE 100%);
+  clip-path: polygon(0 0, 100% 18%, 100% 100%, 0 100%);
+}
+.wallRight {
+  position: absolute;
+  right: 0; top: 8%; bottom: 0; width: 15%;
+  background: linear-gradient(270deg, #E8E4DC 0%, #F5F3EE 100%);
+  clip-path: polygon(0 18%, 100% 0, 100% 100%, 0 100%);
+}
+.ceiling {
+  position: absolute;
+  left: 0; right: 0; top: 0; height: 10%;
+  background: linear-gradient(180deg, #DEDAD4 0%, #EDE9E2 100%);
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+  opacity: 0.6;
+}
+
+/* Window */
+.window {
+  position: absolute;
+  left: 22%; top: 12%; width: 18%; height: 26%;
+  border: 1.5px solid rgba(0,0,0,0.09);
+  border-radius: 2px;
+  background: #E8F0F8;
+  overflow: hidden;
+}
+.window::before, .window::after {
+  content: '';
+  position: absolute;
+  background: rgba(0,0,0,0.07);
+}
+.window::before { left: 50%; top: 0; width: 1px; height: 100%; }
+.window::after  { top: 50%; left: 0; height: 1px; width: 100%; }
+.windowPane {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(200,220,240,0.35) 100%);
+}
+.windowLight {
+  position: absolute;
+  top: -20%; left: -10%; width: 60%; height: 60%;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%);
+}
+
+/* Shelf */
+.shelf {
+  position: absolute;
+  right: 18%; top: 16%; width: 20%; height: 3px;
+  background: rgba(0,0,0,0.11);
+  border-radius: 1px;
+}
+.shelfItem {
+  position: absolute;
+  bottom: 3px;
+  border-radius: 2px;
+}
+
+/* Rug */
+.rug {
+  position: absolute;
+  left: 28%; right: 28%; bottom: 34%; height: 6%;
+  background: rgba(180,160,140,0.16);
+  border-radius: 50%;
+  border: 1px solid rgba(180,160,140,0.12);
+}
+
+/* 3D canvas sits over room bg */
+.catCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+/* Speech bubble */
+.bubble {
+  position: absolute;
+  top: 14%; right: 6%;
+  max-width: 140px;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px 14px 14px 2px;
+  padding: 10px 14px;
+  font-family: var(--serif);
+  font-size: 13px;
+  font-style: italic;
+  color: var(--ink);
+  line-height: 1.45;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+  z-index: 20;
+}
+
+/* Top bar */
+.topBar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  padding: 52px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 30;
+}
+.dateLabel {
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.38);
+}
+.miniProgress {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.miniCount {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  color: rgba(0,0,0,0.35);
+}
+
+/* ── Task banner ─────────────────────────────────────────────────────────── */
+.banner {
+  margin: 0 16px 8px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 0.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  flex-shrink: 0;
+}
+.banner:active { transform: scale(0.98); }
+.bannerFlash { background: rgba(240,240,236,0.95); }
+.bannerDone  { cursor: default; justify-content: center; }
+
+.stepLabel {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #aaa;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.stepText {
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink);
+  flex: 1;
+  line-height: 1.3;
+}
+.tick {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(0,0,0,0.12);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  background: transparent;
+}
+.tickDone {
+  background: #111111;
+  border-color: #111111;
+}
+
+/* ── Nav ─────────────────────────────────────────────────────────────────── */
+.nav {
+  height: 72px;
+  background: #fff;
+  border-top: 0.5px solid rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 4px 8px;
+  flex-shrink: 0;
+  z-index: 40;
+}
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 8px 12px;
+  flex: 1;
+}
+.navLabel {
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #ccc;
+  transition: color 0.2s;
+}
+.navActive .navLabel { color: var(--ink); }
+
+/* Drag hint on room canvas */
+.dragHint {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255,255,255,0.82);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 0.5px solid rgba(0,0,0,0.07);
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: #888;
+  pointer-events: none;
+  white-space: nowrap;
+  animation: fadeHint 0.5s ease 1s both;
+}
+
+@keyframes fadeHint {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
