@@ -1,13 +1,28 @@
+<<<<<<< HEAD
 import { useState, useRef, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, ContactShadows } from '@react-three/drei'
+=======
+import { useState, useRef, useEffect, useMemo, Suspense } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useGLTF, useAnimations, Environment, ContactShadows } from '@react-three/drei'
+import { SkeletonUtils } from 'three-stdlib'
+>>>>>>> claude/practical-noyce
 import styles from './HomeScreen.module.css'
 
 // ── Walking cat — positional roaming, no animation dependency ─────────────
 function RoomCat() {
+<<<<<<< HEAD
   const ref  = useRef()
   const { scene } = useGLTF('/ar_ready_pet_walking.glb')
+=======
+  const ref     = useRef()
+  const { scene, animations } = useGLTF('/ar_ready_pet_walking.glb')
+  const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
+  const { actions, names }    = useAnimations(animations, ref)
+>>>>>>> claude/practical-noyce
 
   const state = useRef({
     x: 0, z: 0,
@@ -79,7 +94,7 @@ function RoomCat() {
 
   return (
     <group ref={ref} position={[0, -1.1, 0]} scale={1.6}>
-      <primitive object={scene.clone()} />
+      <primitive object={clone} />
     </group>
   )
 }
@@ -281,6 +296,11 @@ export default function HomeScreen() {
   )
 }
 
+<<<<<<< HEAD
 fetch('/ar_ready_pet_walking.glb', { method:'HEAD' })
+=======
+// Preload both models — walking model loads eagerly since it's used immediately on home
+fetch('/ar_ready_pet_walking.glb', { method: 'HEAD' })
+>>>>>>> claude/practical-noyce
   .then(r => { if (r.ok) useGLTF.preload('/ar_ready_pet_walking.glb') })
   .catch(() => {})
