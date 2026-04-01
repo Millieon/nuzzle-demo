@@ -1,101 +1,66 @@
-<<<<<<< HEAD
 import { useState, useRef, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, ContactShadows } from '@react-three/drei'
-=======
-import { useState, useRef, useEffect, useMemo, Suspense } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { useGLTF, useAnimations, Environment, ContactShadows } from '@react-three/drei'
-import { SkeletonUtils } from 'three-stdlib'
->>>>>>> claude/practical-noyce
 import styles from './HomeScreen.module.css'
 
-// ── Walking cat — positional roaming, no animation dependency ─────────────
+// ── Walking cat ────────────────────────────────────────────────────────────
 function RoomCat() {
-<<<<<<< HEAD
-  const ref  = useRef()
+  const meshRef = useRef()
   const { scene } = useGLTF('/ar_ready_pet_walking.glb')
-=======
-  const ref     = useRef()
-  const { scene, animations } = useGLTF('/ar_ready_pet_walking.glb')
-  const clone = useMemo(() => SkeletonUtils.clone(scene), [scene])
-  const { actions, names }    = useAnimations(animations, ref)
->>>>>>> claude/practical-noyce
 
-  const state = useRef({
-    x: 0, z: 0,
-    tx: 0.5, tz: 0.3,
-    angle: 0,
-    phase: 'walk',  // 'walk' | 'turn' | 'pause'
-    timer: 0,
-    // leg bob accumulator
-    bob: 0,
+  const s = useRef({
+    x: 0, z: 0, tx: 0.4, tz: 0.3,
+    angle: 0, phase: 'walk', timer: 0, bob: 0,
   })
 
-  function pickTarget() {
-    const s = state.current
-    s.tx = (Math.random() - 0.5) * 1.4
-    s.tz = (Math.random() - 0.5) * 0.8
-    s.phase = 'walk'
-  }
+  useFrame((_, dt) => {
+    const m = meshRef.current
+    if (!m) return
+    const r    = s.current
+    const SPD  = 0.22
 
-  useFrame((_, delta) => {
-    if (!ref.current) return
-    const s    = state.current
-    const SPEED = 0.22   // slow, deliberate walk
-    const STOP  = 0.06
-
-    if (s.phase === 'walk') {
-      const dx   = s.tx - s.x
-      const dz   = s.tz - s.z
-      const dist = Math.sqrt(dx*dx + dz*dz)
-
-      if (dist < STOP) {
-        s.phase = 'pause'
-        s.timer = 1.2 + Math.random() * 2.5
+    if (r.phase === 'walk') {
+      const dx   = r.tx - r.x
+      const dz   = r.tz - r.z
+      const dist = Math.sqrt(dx * dx + dz * dz)
+      if (dist < 0.06) {
+        r.phase = 'pause'
+        r.timer = 1.5 + Math.random() * 2
       } else {
-        // Translate
-        const step = Math.min(SPEED * delta, dist)
-        s.x += (dx / dist) * step
-        s.z += (dz / dist) * step
-
-        // Smooth face-direction rotation
-        const targetAngle = Math.atan2(dx, dz)
-        let diff = targetAngle - s.angle
+        const step = Math.min(SPD * dt, dist)
+        r.x += (dx / dist) * step
+        r.z += (dz / dist) * step
+        const ta  = Math.atan2(dx, dz)
+        let diff  = ta - r.angle
         if (diff >  Math.PI) diff -= Math.PI * 2
         if (diff < -Math.PI) diff += Math.PI * 2
-        s.angle += diff * Math.min(delta * 5, 1)
-
-        // Leg bob while walking
-        s.bob += delta * 9
+        r.angle  += diff * Math.min(dt * 5, 1)
+        r.bob    += dt * 9
       }
     } else {
-      s.timer -= delta
-      if (s.timer <= 0) pickTarget()
+      r.timer -= dt
+      if (r.timer <= 0) {
+        r.tx    = (Math.random() - 0.5) * 1.4
+        r.tz    = (Math.random() - 0.5) * 0.8
+        r.phase = 'walk'
+      }
     }
 
-    // Apply position + facing
-    ref.current.position.x = s.x
-    ref.current.position.z = s.z
-    ref.current.rotation.y = s.angle
-
-    // Vertical bob: faster + more pronounced while walking, gentle idle breathe when stopped
-    const isWalking = s.phase === 'walk'
-    const bobFreq   = isWalking ? 9 : 1.2
-    const bobAmp    = isWalking ? 0.022 : 0.008
-    ref.current.position.y = -1.1 + Math.sin(s.bob * (isWalking ? 1 : 0.13)) * bobAmp
-
-    // Slight body lean into the walk direction
-    ref.current.rotation.z = isWalking ? Math.sin(s.bob) * 0.025 : 0
-    ref.current.rotation.x = isWalking ? -0.04 : 0
+    m.position.x = r.x
+    m.position.y = -1.1 + Math.sin(r.bob) * 0.02
+    m.position.z = r.z
+    m.rotation.y = r.angle
+    m.rotation.z = r.phase === 'walk' ? Math.sin(r.bob) * 0.025 : 0
   })
 
   return (
-    <group ref={ref} position={[0, -1.1, 0]} scale={1.6}>
-      <primitive object={clone} />
-    </group>
+    <primitive
+      ref={meshRef}
+      object={scene}
+      position={[0, -1.1, 0]}
+      scale={1.6}
+    />
   )
 }
 
@@ -296,11 +261,6 @@ export default function HomeScreen() {
   )
 }
 
-<<<<<<< HEAD
 fetch('/ar_ready_pet_walking.glb', { method:'HEAD' })
-=======
-// Preload both models — walking model loads eagerly since it's used immediately on home
-fetch('/ar_ready_pet_walking.glb', { method: 'HEAD' })
->>>>>>> claude/practical-noyce
   .then(r => { if (r.ok) useGLTF.preload('/ar_ready_pet_walking.glb') })
   .catch(() => {})
