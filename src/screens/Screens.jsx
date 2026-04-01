@@ -236,7 +236,7 @@ export function ConfirmScreen({ go }) {
         <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, color:'#999', textAlign:'center', lineHeight:1.6 }}>
           You can update your companion's look later in settings.
         </p>
-        <Btn onClick={() => go('sounds')}>Yes, I love it →</Btn>
+        <Btn onClick={() => go('naming')}>Yes, I love it →</Btn>
         <button onClick={() => go('gen')} style={{
           background:'transparent', border:'0.5px solid rgba(0,0,0,0.12)', borderRadius:8,
           padding:14, fontFamily:'DM Sans,sans-serif', fontSize:11, fontWeight:500,
@@ -295,6 +295,106 @@ export function SoundsScreen({ go, updateProfile }) {
         <div style={{ paddingBottom:36 }}>
           <Btn onClick={() => { updateProfile('sound', selected); go('chat') }}>Continue →</Btn>
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Naming: give your companion a name ─────────────────────────────────── */
+export function NamingScreen({ go, updateProfile }) {
+  const [name, setName] = useState('')
+  const suggestions = ['Luna', 'Mochi', 'Sage', 'Kira', 'Atlas', 'Wren']
+
+  return (
+    <div style={ROOT}>
+      <div style={{ ...CONTENT, justifyContent: 'center', paddingTop: 64, gap: 0 }}>
+        <p style={{
+          fontFamily: 'DM Sans, sans-serif',
+          fontSize: 10,
+          fontWeight: 500,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          color: '#888',
+          marginBottom: 16,
+          textAlign: 'center',
+        }}>
+          One last thing
+        </p>
+        <h2 style={{
+          fontFamily: 'Playfair Display, serif',
+          fontSize: 28,
+          color: '#111',
+          textAlign: 'center',
+          lineHeight: 1.25,
+          marginBottom: 10,
+        }}>
+          What will you call them?
+        </h2>
+        <p style={{
+          fontFamily: 'DM Sans, sans-serif',
+          fontSize: 14,
+          color: '#999',
+          textAlign: 'center',
+          lineHeight: 1.55,
+          marginBottom: 32,
+        }}>
+          Your companion's name — you can change it later.
+        </p>
+
+        <input
+          type="text"
+          value={name}
+          onChange={e => setName(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && name.trim()) { updateProfile('petName', name.trim()); go('sounds') } }}
+          placeholder="Enter a name…"
+          maxLength={24}
+          autoFocus
+          style={{
+            width: '100%',
+            background: '#fff',
+            border: name.trim() ? '1.5px solid #111' : '0.5px solid rgba(0,0,0,0.12)',
+            borderRadius: 10,
+            padding: '16px 18px',
+            fontFamily: 'Playfair Display, serif',
+            fontSize: 22,
+            color: '#111',
+            textAlign: 'center',
+            outline: 'none',
+            transition: 'border 0.2s',
+            letterSpacing: '-0.3px',
+          }}
+        />
+
+        {/* Suggestions */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginTop: 20 }}>
+          {suggestions.map(s => (
+            <span
+              key={s}
+              onClick={() => setName(s)}
+              style={{
+                background: name === s ? '#111' : '#fff',
+                color: name === s ? '#fff' : '#888',
+                border: name === s ? '1.5px solid #111' : '0.5px solid rgba(0,0,0,0.12)',
+                borderRadius: 100,
+                padding: '6px 16px',
+                fontFamily: 'DM Sans, sans-serif',
+                fontSize: 13,
+                cursor: 'pointer',
+                transition: 'all 0.15s',
+              }}
+            >
+              {s}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div style={BOTTOM}>
+        <Btn
+          onClick={() => { updateProfile('petName', name.trim() || 'your companion'); go('sounds') }}
+        >
+          {name.trim() ? `Meet ${name.trim()} →` : 'Continue →'}
+        </Btn>
       </div>
     </div>
   )

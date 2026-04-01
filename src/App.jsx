@@ -6,13 +6,14 @@ import WelcomeScreen from './screens/WelcomeScreen'
 import {
   GoalScreen, ScheduleScreen, PastScreen,
   MotivationScreen, ToneScreen, CompanionScreen,
-  ConfirmScreen, SoundsScreen,
+  ConfirmScreen, SoundsScreen, NamingScreen,
 } from './screens/Screens'
 
 // Screens with WebGL Canvas — lazy so Three.js only loads when needed
-const GenScreen  = lazy(() => import('./screens/GenScreen'))
-const ChatScreen = lazy(() => import('./screens/ChatScreen'))
-const HomeScreen = lazy(() => import('./screens/HomeScreen'))
+const GenScreen   = lazy(() => import('./screens/GenScreen'))
+const ChatScreen  = lazy(() => import('./screens/ChatScreen'))
+const HomeScreen  = lazy(() => import('./screens/HomeScreen'))
+const DiaryScreen = lazy(() => import('./screens/DiaryScreen'))
 
 function ScreenLoader() {
   return (
@@ -36,7 +37,7 @@ function ScreenLoader() {
 const SCREENS = [
   'welcome',
   'goal', 'schedule', 'past', 'motivation', 'tone', 'companion',
-  'gen', 'confirm', 'sounds', 'chat', 'home',
+  'gen', 'confirm', 'naming', 'sounds', 'chat', 'home', 'diary',
 ]
 
 export default function App() {
@@ -60,11 +61,13 @@ export default function App() {
     motivation: <MotivationScreen {...p} />,
     tone:       <ToneScreen       {...p} />,
     companion:  <CompanionScreen  {...p} />,
-    gen:    <Suspense fallback={<ScreenLoader />}><GenScreen  {...p} /></Suspense>,
+    gen:    <Suspense fallback={<ScreenLoader />}><GenScreen    {...p} /></Suspense>,
     confirm:<Suspense fallback={<ScreenLoader />}><ConfirmScreen {...p} /></Suspense>,
+    naming: <NamingScreen {...p} />,
     sounds: <Suspense fallback={<ScreenLoader />}><SoundsScreen  {...p} /></Suspense>,
     chat:   <Suspense fallback={<ScreenLoader />}><ChatScreen    {...p} /></Suspense>,
     home:   <Suspense fallback={<ScreenLoader />}><HomeScreen    {...p} /></Suspense>,
+    diary:  <Suspense fallback={<ScreenLoader />}><DiaryScreen   {...p} /></Suspense>,
   }
 
   return (

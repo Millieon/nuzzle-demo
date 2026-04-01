@@ -83,17 +83,22 @@ function FallbackCatRoom() {
   )
 }
 
-function NavBar() {
+function NavBar({ go }) {
+  const NAV = [
+    { label:'Home',  route:null,    active:true  },
+    { label:'Room',  route:null,    active:false },
+    { label:'Coach', route:null,    active:false },
+    { label:'Diary', route:'diary', active:false },
+    { label:'Me',    route:null,    active:false },
+  ]
   return (
     <nav className={styles.nav}>
-      {[
-        { label:'Home',  active:true  },
-        { label:'Room',  active:false },
-        { label:'Coach', active:false },
-        { label:'Diary', active:false },
-        { label:'Me',    active:false },
-      ].map(item => (
-        <div key={item.label} className={`${styles.navItem} ${item.active ? styles.navActive : ''}`}>
+      {NAV.map(item => (
+        <div
+          key={item.label}
+          className={`${styles.navItem} ${item.active ? styles.navActive : ''} ${item.route ? styles.navClickable : ''}`}
+          onClick={() => item.route && go?.(item.route)}
+        >
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
                stroke={item.active ? '#111' : '#ccc'} strokeWidth="1.5">
             {item.label==='Home'  && <path d="M3 9.5L11 3l8 6.5V19a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>}
@@ -122,7 +127,7 @@ const BUBBLES = [
   'All done. I noticed. ✨',
 ]
 
-export default function HomeScreen() {
+export default function HomeScreen({ go }) {
   const [taskIdx, setTaskIdx] = useState(0)
   const [ticked,  setTicked]  = useState(false)
   const [allDone, setAllDone] = useState(false)
@@ -256,7 +261,7 @@ export default function HomeScreen() {
         )}
       </AnimatePresence>
 
-      <NavBar />
+      <NavBar go={go} />
     </div>
   )
 }
