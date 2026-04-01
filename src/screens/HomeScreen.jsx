@@ -7,7 +7,7 @@ import styles from './HomeScreen.module.css'
 // ── Walking cat ────────────────────────────────────────────────────────────
 function RoomCat() {
   const meshRef = useRef()
-  const { scene } = useGLTF('/ar_ready_pet_walking.glb')
+  const { scene } = useGLTF(`${import.meta.env.BASE_URL}ar_ready_pet_walking.glb`)
 
   const s = useRef({
     x: 0, z: 0, tx: 0.4, tz: 0.3,
@@ -179,13 +179,14 @@ export default function HomeScreen({ go }) {
             gl={{
               alpha: true,
               antialias: true,
-              powerPreference: 'default',
+              powerPreference: 'low-power',
               failIfMajorPerformanceCaveat: false,
             }}
             onCreated={({ gl }) => {
               gl.domElement.addEventListener('webglcontextlost', e => { e.preventDefault() })
             }}
             shadows={false}
+            frameloop="always"
           >
             {/* Bright, neutral lighting — no HDR dependency */}
             <ambientLight intensity={2.5} />
@@ -266,6 +267,6 @@ export default function HomeScreen({ go }) {
   )
 }
 
-fetch('/ar_ready_pet_walking.glb', { method:'HEAD' })
-  .then(r => { if (r.ok) useGLTF.preload('/ar_ready_pet_walking.glb') })
+fetch(`${import.meta.env.BASE_URL}ar_ready_pet_walking.glb`, { method:'HEAD' })
+  .then(r => { if (r.ok) useGLTF.preload(`${import.meta.env.BASE_URL}ar_ready_pet_walking.glb`) })
   .catch(() => {})

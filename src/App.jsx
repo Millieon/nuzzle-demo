@@ -53,21 +53,24 @@ export default function App() {
   const updateProfile = (key, val) => setProfile(p => ({ ...p, [key]: val }))
   const p = { go, profile, updateProfile }
 
-  const screenMap = {
-    welcome:    <WelcomeScreen    {...p} />,
-    goal:       <GoalScreen       {...p} />,
-    schedule:   <ScheduleScreen   {...p} />,
-    past:       <PastScreen       {...p} />,
-    motivation: <MotivationScreen {...p} />,
-    tone:       <ToneScreen       {...p} />,
-    companion:  <CompanionScreen  {...p} />,
-    gen:    <Suspense fallback={<ScreenLoader />}><GenScreen    {...p} /></Suspense>,
-    confirm:<Suspense fallback={<ScreenLoader />}><ConfirmScreen {...p} /></Suspense>,
-    naming: <NamingScreen {...p} />,
-    sounds: <Suspense fallback={<ScreenLoader />}><SoundsScreen  {...p} /></Suspense>,
-    chat:   <Suspense fallback={<ScreenLoader />}><ChatScreen    {...p} /></Suspense>,
-    home:   <Suspense fallback={<ScreenLoader />}><HomeScreen    {...p} /></Suspense>,
-    diary:  <Suspense fallback={<ScreenLoader />}><DiaryScreen   {...p} /></Suspense>,
+  function renderScreen() {
+    switch (screen) {
+      case 'welcome':    return <WelcomeScreen    {...p} />
+      case 'goal':       return <GoalScreen       {...p} />
+      case 'schedule':   return <ScheduleScreen   {...p} />
+      case 'past':       return <PastScreen       {...p} />
+      case 'motivation': return <MotivationScreen {...p} />
+      case 'tone':       return <ToneScreen       {...p} />
+      case 'companion':  return <CompanionScreen  {...p} />
+      case 'gen':        return <Suspense fallback={<ScreenLoader />}><GenScreen    {...p} /></Suspense>
+      case 'confirm':    return <Suspense fallback={<ScreenLoader />}><ConfirmScreen {...p} /></Suspense>
+      case 'naming':     return <NamingScreen {...p} />
+      case 'sounds':     return <Suspense fallback={<ScreenLoader />}><SoundsScreen  {...p} /></Suspense>
+      case 'chat':       return <Suspense fallback={<ScreenLoader />}><ChatScreen    {...p} /></Suspense>
+      case 'home':       return <Suspense fallback={<ScreenLoader />}><HomeScreen    {...p} /></Suspense>
+      case 'diary':      return <Suspense fallback={<ScreenLoader />}><DiaryScreen   {...p} /></Suspense>
+      default:           return <WelcomeScreen    {...p} />
+    }
   }
 
   return (
@@ -86,7 +89,7 @@ export default function App() {
           transition={{ duration: 0.18, ease: 'easeInOut' }}
           style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}
         >
-          {screenMap[screen]}
+          {renderScreen()}
         </motion.div>
       </AnimatePresence>
     </div>

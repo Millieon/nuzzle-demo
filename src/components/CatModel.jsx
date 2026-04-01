@@ -34,7 +34,7 @@ function FallbackCat() {
 
 function CatMesh({ scale, position, mood }) {
   const groupRef = useRef()
-  const { scene, animations } = useGLTF('/cat.glb')
+  const { scene, animations } = useGLTF(`${import.meta.env.BASE_URL}cat.glb`)
   const { actions, names } = useAnimations(animations, groupRef)
 
   useEffect(() => {
@@ -109,11 +109,10 @@ export default function CatModel({
         gl={{
           alpha: true,
           antialias: true,
-          powerPreference: 'low-power',   // reduces context pressure
+          powerPreference: 'low-power',
           failIfMajorPerformanceCaveat: false,
         }}
         onCreated={({ gl }) => {
-          // Restore context automatically if lost
           gl.domElement.addEventListener('webglcontextlost', e => {
             e.preventDefault()
             console.warn('WebGL context lost — will restore')
@@ -122,8 +121,10 @@ export default function CatModel({
             console.log('WebGL context restored')
           })
         }}
-        shadows={false}     // shadows off on modal views — saves a context slot
+        onPointerMissed={() => {}}
+        shadows={false}
         frameloop="always"
+        dispose={null}
       >
         <ambientLight intensity={2.5} />
         <directionalLight position={[5, 8, 5]}  intensity={2.0} color="#fffaf5" />
@@ -158,6 +159,6 @@ export default function CatModel({
   )
 }
 
-fetch('/cat.glb', { method:'HEAD' })
-  .then(r => { if (r.ok) useGLTF.preload('/cat.glb') })
+fetch(`${import.meta.env.BASE_URL}cat.glb`, { method:'HEAD' })
+  .then(r => { if (r.ok) useGLTF.preload(`${import.meta.env.BASE_URL}cat.glb`) })
   .catch(() => {})

@@ -24,7 +24,7 @@ export default function WelcomeScreen({ go }) {
         transition={{ delay: 0.22, duration: 0.6 }}
       >
         <img
-          src="/pets-welcome.png"
+          src={`${import.meta.env.BASE_URL}pets-welcome.png`}
           alt="Three companions — a fantastical creature, a Siamese cat, and a golden retriever"
           className={styles.petImage}
         />
