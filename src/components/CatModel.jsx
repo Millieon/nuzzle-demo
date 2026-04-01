@@ -2,7 +2,7 @@ import { useRef, useEffect, Suspense } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import {
   useGLTF, useAnimations,
-  Environment, ContactShadows, OrbitControls,
+  ContactShadows, OrbitControls,
 } from '@react-three/drei'
 
 function FallbackCat() {
@@ -41,7 +41,7 @@ function CatMesh({ scale, position, mood }) {
     if (!names.length) return
     const name = names.find(n => /idle|rest|breathe|stand/i.test(n)) ?? names[0]
     const a = actions[name]
-    if (a) { a.reset().fadeIn(0.3).play(); return () => a.fadeOut(0.3) }
+    if (a) { a.reset().play(); return () => a.stop() }
   }, [actions, names])
 
   useFrame(s => {
@@ -49,8 +49,7 @@ function CatMesh({ scale, position, mood }) {
     const t = s.clock.elapsedTime
     groupRef.current.position.y = position[1] + Math.sin(t * 0.8) * 0.04
     const targetZ = mood === 'happy'    ? Math.sin(t * 1.5) * 0.05
-                  : mood === 'thinking' ? -0.10
-                  : 0
+                  : mood === 'thinking' ? -0.10 : 0
     groupRef.current.rotation.z += (targetZ - groupRef.current.rotation.z) * 0.05
   })
 
@@ -61,24 +60,16 @@ function CatMesh({ scale, position, mood }) {
   )
 }
 
-// Drag hint pill overlay
 function DragHint() {
   return (
     <div style={{
-      position: 'absolute',
-      bottom: 14,
-      left: '50%',
+      position: 'absolute', bottom: 14, left: '50%',
       transform: 'translateX(-50%)',
-      display: 'flex',
-      alignItems: 'center',
-      gap: 6,
+      display: 'flex', alignItems: 'center', gap: 6,
       background: 'rgba(255,255,255,0.88)',
-      backdropFilter: 'blur(8px)',
-      WebkitBackdropFilter: 'blur(8px)',
-      border: '0.5px solid rgba(0,0,0,0.08)',
-      borderRadius: 20,
-      padding: '6px 14px',
-      pointerEvents: 'none',
+      backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
+      border: '0.5px solid rgba(0,0,0,0.08)', borderRadius: 20,
+      padding: '6px 14px', pointerEvents: 'none',
       animation: 'fadeHintIn 0.4s ease 0.6s both',
     }}>
       <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
@@ -115,13 +106,29 @@ export default function CatModel({
       <Canvas
         camera={{ position: cameraPosition, fov: 32 }}
         style={{ width:'100%', height:'100%' }}
-        gl={{ alpha:true, antialias:true }}
-        shadows
+        gl={{
+          alpha: true,
+          antialias: true,
+          powerPreference: 'low-power',   // reduces context pressure
+          failIfMajorPerformanceCaveat: false,
+        }}
+        onCreated={({ gl }) => {
+          // Restore context automatically if lost
+          gl.domElement.addEventListener('webglcontextlost', e => {
+            e.preventDefault()
+            console.warn('WebGL context lost — will restore')
+          })
+          gl.domElement.addEventListener('webglcontextrestored', () => {
+            console.log('WebGL context restored')
+          })
+        }}
+        shadows={false}     // shadows off on modal views — saves a context slot
+        frameloop="always"
       >
-        <ambientLight intensity={0.65} />
-        <directionalLight position={[3,5,3]} intensity={1.0} castShadow />
-        <directionalLight position={[-3,2,-2]} intensity={0.28} />
-        <Environment preset="apartment" />
+        <ambientLight intensity={2.5} />
+        <directionalLight position={[5, 8, 5]}  intensity={2.0} color="#fffaf5" />
+        <directionalLight position={[-4, 4, -3]} intensity={1.2} color="#e8f0ff" />
+        <directionalLight position={[0, -2, 4]}  intensity={0.6} color="#fff8f0" />
 
         <Suspense fallback={<FallbackCat />}>
           <CatMesh scale={scale} position={position} mood={mood} />
