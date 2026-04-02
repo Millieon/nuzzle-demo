@@ -1,4 +1,4 @@
-import { useState, useRef, Suspense } from 'react'
+import { useState, useRef, Suspense, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Canvas, useFrame } from '@react-three/fiber'
 import { useGLTF, ContactShadows } from '@react-three/drei'
@@ -8,77 +8,44 @@ import styles from './HomeScreen.module.css'
 function RoomCat() {
   const meshRef = useRef()
   const { scene } = useGLTF(`${import.meta.env.BASE_URL}ar_ready_pet_walking.glb`)
-
-  const s = useRef({
-    x: 0, z: 0, tx: 0.4, tz: 0.3,
-    angle: 0, phase: 'walk', timer: 0, bob: 0,
-  })
+  const s = useRef({ x:0, z:0, tx:0.4, tz:0.3, angle:0, phase:'walk', timer:0, bob:0 })
 
   useFrame((_, dt) => {
-    const m = meshRef.current
-    if (!m) return
-    const r    = s.current
-    const SPD  = 0.22
-
+    const m = meshRef.current; if (!m) return
+    const r = s.current; const SPD = 0.22
     if (r.phase === 'walk') {
-      const dx   = r.tx - r.x
-      const dz   = r.tz - r.z
-      const dist = Math.sqrt(dx * dx + dz * dz)
-      if (dist < 0.06) {
-        r.phase = 'pause'
-        r.timer = 1.5 + Math.random() * 2
-      } else {
-        const step = Math.min(SPD * dt, dist)
-        r.x += (dx / dist) * step
-        r.z += (dz / dist) * step
-        const ta  = Math.atan2(dx, dz)
-        let diff  = ta - r.angle
-        if (diff >  Math.PI) diff -= Math.PI * 2
-        if (diff < -Math.PI) diff += Math.PI * 2
-        r.angle  += diff * Math.min(dt * 5, 1)
-        r.bob    += dt * 9
+      const dx = r.tx - r.x, dz = r.tz - r.z
+      const dist = Math.sqrt(dx*dx + dz*dz)
+      if (dist < 0.06) { r.phase='pause'; r.timer=1.5+Math.random()*2 }
+      else {
+        const step = Math.min(SPD*dt, dist)
+        r.x += (dx/dist)*step; r.z += (dz/dist)*step
+        const ta = Math.atan2(dx, dz); let diff = ta - r.angle
+        if (diff > Math.PI) diff -= Math.PI*2
+        if (diff < -Math.PI) diff += Math.PI*2
+        r.angle += diff * Math.min(dt*5, 1); r.bob += dt*9
       }
     } else {
       r.timer -= dt
-      if (r.timer <= 0) {
-        r.tx    = (Math.random() - 0.5) * 1.4
-        r.tz    = (Math.random() - 0.5) * 0.8
-        r.phase = 'walk'
-      }
+      if (r.timer <= 0) { r.tx=(Math.random()-0.5)*1.4; r.tz=(Math.random()-0.5)*0.8; r.phase='walk' }
     }
-
     m.position.x = r.x
-    m.position.y = -1.1 + Math.sin(r.bob) * 0.02
+    m.position.y = -1.1 + Math.sin(r.bob)*0.02
     m.position.z = r.z
     m.rotation.y = r.angle
-    m.rotation.z = r.phase === 'walk' ? Math.sin(r.bob) * 0.025 : 0
+    m.rotation.z = r.phase==='walk' ? Math.sin(r.bob)*0.025 : 0
   })
 
-  return (
-    <primitive
-      ref={meshRef}
-      object={scene}
-      position={[0, -1.1, 0]}
-      scale={1.6}
-    />
-  )
+  return <primitive ref={meshRef} object={scene} position={[0,-1.1,0]} scale={1.6} />
 }
 
 function FallbackCatRoom() {
   const ref = useRef()
-  useFrame(s => {
-    if (ref.current) ref.current.position.y = -1.1 + Math.sin(s.clock.elapsedTime * 0.7) * 0.03
-  })
+  useFrame(s => { if (ref.current) ref.current.position.y = -1.1 + Math.sin(s.clock.elapsedTime*0.7)*0.03 })
   return (
     <group ref={ref}>
-      <mesh position={[0,-0.6,0]}>
-        <sphereGeometry args={[0.55,32,32]} />
-        <meshStandardMaterial color="#D4C4B0" roughness={0.55} />
-      </mesh>
-      <mesh position={[0,0.12,0]}>
-        <sphereGeometry args={[0.38,32,32]} />
-        <meshStandardMaterial color="#D4C4B0" roughness={0.55} />
-      </mesh>
+      <mesh position={[0,-0.6,0]}><sphereGeometry args={[0.55,32,32]}/><meshStandardMaterial color="#D4C4B0" roughness={0.55}/></mesh>
+      <mesh position={[0,0.12,0]}><sphereGeometry args={[0.38,32,32]}/><meshStandardMaterial color="#D4C4B0" roughness={0.55}/></mesh>
     </group>
   )
 }
@@ -94,13 +61,11 @@ function NavBar({ go }) {
   return (
     <nav className={styles.nav}>
       {NAV.map(item => (
-        <div
-          key={item.label}
+        <div key={item.label}
           className={`${styles.navItem} ${item.active ? styles.navActive : ''} ${item.route ? styles.navClickable : ''}`}
           onClick={() => item.route && go?.(item.route)}
         >
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none"
-               stroke={item.active ? '#111' : '#ccc'} strokeWidth="1.5">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke={item.active ? '#111' : '#ccc'} strokeWidth="1.5">
             {item.label==='Home'  && <path d="M3 9.5L11 3l8 6.5V19a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>}
             {item.label==='Room'  && <><rect x="2" y="8" width="18" height="12" rx="1.5"/><path d="M6 8V6a5 5 0 0110 0v2"/></>}
             {item.label==='Coach' && <><circle cx="11" cy="11" r="8"/><path d="M11 7v4l2.5 2.5"/></>}
@@ -114,6 +79,75 @@ function NavBar({ go }) {
   )
 }
 
+// ── Diary invite card ──────────────────────────────────────────────────────
+function DiaryInvite({ petName, entry, onOpen }) {
+  return (
+    <motion.div
+      className={styles.diaryInvite}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 8 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      onClick={onOpen}
+    >
+      <div className={styles.diaryInviteInner}>
+        <div className={styles.diaryInviteText}>
+          <span className={styles.diaryInviteLabel}>{petName} wrote something</span>
+          <p className={styles.diaryInvitePreview}>&#8220;{entry.text.slice(0, 72)}{entry.text.length > 72 ? '…' : ''}&#8221;</p>
+        </div>
+        <div className={styles.diaryInviteArrow}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 3l5 5-5 5" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      <span className={styles.diaryInviteCta}>Add your own thoughts →</span>
+    </motion.div>
+  )
+}
+
+// ── Generate diary via Claude API ──────────────────────────────────────────
+async function generateDiaryEntry(petName, tasks, profile) {
+  const hour = new Date().getHours()
+  const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night'
+  const goal = profile?.goal || 'building better habits'
+
+  const prompt = `You are ${petName}, a gentle virtual companion who has watched your person move through their day.
+They completed all of today's tasks:
+${tasks.map((t, i) => `${i + 1}. ${t.text} (${t.time})`).join('\n')}
+
+Their goal is: "${goal}"
+It is now ${timeOfDay}.
+
+Write a short diary entry — 2 to 3 sentences — as an observation from your perspective. 
+You noticed them. You were there. Write warmly but quietly, like a companion who doesn't need to shout.
+No emoji. No exclamation marks. Write in the register of a journal — intimate, unhurried.
+Do not start with "I". Do not use the word "journey" or "proud" or "amazing".
+Return only the diary text, nothing else.`
+
+  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+  if (!apiKey) throw new Error('No API key')
+
+  const response = await fetch('/api/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 200,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  })
+
+  if (!response.ok) throw new Error('API error')
+  const data = await response.json()
+  return data.content?.[0]?.text?.trim() || ''
+}
+
+// ── Tasks & bubbles ────────────────────────────────────────────────────────
 const TASKS = [
   { text:'5 min breathing before work',      time:'Morning'   },
   { text:'Write 200 words of your chapter',  time:'Afternoon' },
@@ -124,20 +158,63 @@ const BUBBLES = [
   'Ready when you are.',
   'Good start. Keep it up.',
   'Almost there. One more.',
-  'All done. I noticed. ✨',
+  'All done. I noticed.',
 ]
 
-export default function HomeScreen({ go }) {
+// ── Main screen ────────────────────────────────────────────────────────────
+export default function HomeScreen({ go, profile, updateProfile }) {
   const [taskIdx, setTaskIdx] = useState(0)
   const [ticked,  setTicked]  = useState(false)
   const [allDone, setAllDone] = useState(false)
   const [flash,   setFlash]   = useState(false)
 
+  // Diary generation state
+  const [diaryState, setDiaryState] = useState('idle') // idle | generating | ready
+  const [diaryEntry, setDiaryEntry] = useState(null)
+
+  const petName = profile?.petName || 'your companion'
   const donePct = taskIdx / TASKS.length
   const now     = new Date()
   const days    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
   const months  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
   const dateStr = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`
+
+  // Trigger diary generation when all tasks done
+  useEffect(() => {
+    if (!allDone || diaryState !== 'idle') return
+    setDiaryState('generating')
+
+    const todayStr = new Date().toISOString().slice(0, 10)
+
+    // Small delay — let the "all done" moment breathe before showing diary
+    const timer = setTimeout(async () => {
+      try {
+        const text = await generateDiaryEntry(petName, TASKS, profile)
+        const entry = {
+          id: Date.now(),
+          date: todayStr,
+          mood: 'calm',
+          text,
+          petGenerated: true, // flag so DiaryScreen knows this came from the pet
+        }
+        setDiaryEntry(entry)
+        setDiaryState('ready')
+      } catch {
+        // Fallback if API fails
+        const fallbackTexts = [
+          `Today all four things happened. The breathing in the morning, the words in the afternoon, the walk, and the reading before sleep. It was a full day — quiet in the way that full days sometimes are.`,
+          `Every task, done. There was something steady about the way today moved — no rushing, no skipping. Just one thing, then the next.`,
+          `A complete day. The kind that doesn't announce itself but leaves something behind — a small, solid feeling that something was kept.`,
+        ]
+        const text = fallbackTexts[Math.floor(Math.random() * fallbackTexts.length)]
+        const entry = { id: Date.now(), date: todayStr, mood: 'calm', text, petGenerated: true }
+        setDiaryEntry(entry)
+        setDiaryState('ready')
+      }
+    }, 2200)
+
+    return () => clearTimeout(timer)
+  }, [allDone])
 
   function handleTick() {
     if (allDone || ticked) return
@@ -151,9 +228,15 @@ export default function HomeScreen({ go }) {
     }, 380)
   }
 
+  function openDiary() {
+    if (diaryEntry) {
+      updateProfile('generatedDiaryEntry', diaryEntry)
+    }
+    go('diary')
+  }
+
   return (
     <div className={styles.root}>
-
       <div className={styles.roomEnv}>
         <div className={styles.roomBg}>
           <div className={styles.wallBack} />
@@ -166,9 +249,9 @@ export default function HomeScreen({ go }) {
             <div className={styles.windowLight} />
           </div>
           <div className={styles.shelf}>
-            <div className={styles.shelfItem} style={{left:'5%', width:'28%',height:22,background:'#D4C4B0'}}/>
-            <div className={styles.shelfItem} style={{left:'38%',width:'24%',height:16,background:'#B8C8D4'}}/>
-            <div className={styles.shelfItem} style={{left:'66%',width:'20%',height:20,background:'#C8B8B0'}}/>
+            <div className={styles.shelfItem} style={{left:'5%',  width:'28%', height:22, background:'#D4C4B0'}}/>
+            <div className={styles.shelfItem} style={{left:'38%', width:'24%', height:16, background:'#B8C8D4'}}/>
+            <div className={styles.shelfItem} style={{left:'66%', width:'20%', height:20, background:'#C8B8B0'}}/>
           </div>
           <div className={styles.rug} />
         </div>
@@ -176,37 +259,21 @@ export default function HomeScreen({ go }) {
         <div className={styles.catCanvas}>
           <Canvas
             camera={{ position:[0,1.2,4.5], fov:38 }}
-            gl={{
-              alpha: true,
-              antialias: true,
-              powerPreference: 'low-power',
-              failIfMajorPerformanceCaveat: false,
-            }}
-            onCreated={({ gl }) => {
-              gl.domElement.addEventListener('webglcontextlost', e => { e.preventDefault() })
-            }}
+            gl={{ alpha:true, antialias:true, powerPreference:'default', failIfMajorPerformanceCaveat:false }}
+            onCreated={({ gl }) => { gl.domElement.addEventListener('webglcontextlost', e => e.preventDefault()) }}
             shadows={false}
-            frameloop="always"
           >
-            {/* Bright, neutral lighting — no HDR dependency */}
             <ambientLight intensity={2.5} />
-            <directionalLight position={[5, 8, 5]}  intensity={2.0} color="#fffaf5" />
-            <directionalLight position={[-4, 4, -3]} intensity={1.2} color="#e8f0ff" />
-            <directionalLight position={[0, -2, 4]}  intensity={0.6} color="#fff8f0" />
-
-            <Suspense fallback={<FallbackCatRoom />}>
-              <RoomCat />
-            </Suspense>
+            <directionalLight position={[5,8,5]}   intensity={2.0} color="#fffaf5" />
+            <directionalLight position={[-4,4,-3]}  intensity={1.2} color="#e8f0ff" />
+            <directionalLight position={[0,-2,4]}   intensity={0.6} color="#fff8f0" />
+            <Suspense fallback={<FallbackCatRoom />}><RoomCat /></Suspense>
             <ContactShadows position={[0,-1.55,0]} opacity={0.10} scale={4} blur={2} far={1} />
           </Canvas>
         </div>
 
-        <motion.div
-          className={styles.bubble}
-          key={taskIdx}
-          initial={{ opacity:0, scale:0.9 }}
-          animate={{ opacity:1, scale:1 }}
-          transition={{ duration:0.3 }}
+        <motion.div className={styles.bubble} key={taskIdx}
+          initial={{ opacity:0, scale:0.9 }} animate={{ opacity:1, scale:1 }} transition={{ duration:0.3 }}
         >
           &#8220;{BUBBLES[Math.min(taskIdx, BUBBLES.length-1)]}&#8221;
         </motion.div>
@@ -228,16 +295,14 @@ export default function HomeScreen({ go }) {
         </div>
       </div>
 
+      {/* Task banner / all done / generating / diary invite */}
       <AnimatePresence mode="wait">
         {!allDone ? (
-          <motion.div
-            key={taskIdx}
+          <motion.div key={taskIdx}
             className={`${styles.banner} ${flash ? styles.bannerFlash : ''}`}
             onClick={handleTick}
-            initial={{ opacity:0, y:10 }}
-            animate={{ opacity:1, y:0 }}
-            exit={{ opacity:0, y:-8 }}
-            transition={{ duration:0.28 }}
+            initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+            exit={{ opacity:0, y:-8 }} transition={{ duration:0.28 }}
           >
             <span className={styles.stepLabel}>Step {taskIdx+1} of {TASKS.length}</span>
             <span className={styles.stepText}>{TASKS[taskIdx].text}</span>
@@ -248,12 +313,25 @@ export default function HomeScreen({ go }) {
               }
             </div>
           </motion.div>
+
+        ) : diaryState === 'generating' ? (
+          <motion.div key="generating" className={`${styles.banner} ${styles.bannerDone}`}
+            initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
+          >
+            <span className={styles.stepText} style={{ color:'#aaa', fontStyle:'italic', textAlign:'center', fontSize:13 }}>
+              {petName} is writing…
+            </span>
+            <span className={styles.generatingDots}>
+              {[0,1,2].map(i => <span key={i} style={{ animationDelay:`${i*0.2}s` }} />)}
+            </span>
+          </motion.div>
+
+        ) : diaryState === 'ready' && diaryEntry ? (
+          <DiaryInvite key="invite" petName={petName} entry={diaryEntry} onOpen={openDiary} />
+
         ) : (
-          <motion.div
-            key="done"
-            className={`${styles.banner} ${styles.bannerDone}`}
-            initial={{ opacity:0, y:10 }}
-            animate={{ opacity:1, y:0 }}
+          <motion.div key="done" className={`${styles.banner} ${styles.bannerDone}`}
+            initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
           >
             <span className={styles.stepText} style={{ textAlign:'center', color:'#888', fontStyle:'italic' }}>
               All done today ✓

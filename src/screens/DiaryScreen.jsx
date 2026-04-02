@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import styles from './DiaryScreen.module.css'
 
-// ─── Moods — words only, no emoji ────────────────────────────────────────────
+// ─── Moods ────────────────────────────────────────────────────────────────────
 const MOODS = [
   { id: 'calm',     label: 'Calm'      },
   { id: 'happy',    label: 'Light'     },
@@ -13,7 +13,6 @@ const MOODS = [
   { id: 'sad',      label: 'Heavy'     },
 ]
 
-// Greyscale left-rule shade per mood — the only visual indicator
 const MOOD_SHADE = {
   calm: '#c8c4bc', happy: '#b4b8b0', proud: '#a4a4a0',
   grateful: '#b8b0a8', tired: '#c4c4c8', anxious: '#b8b8c0', sad: '#a8b0b8',
@@ -24,25 +23,25 @@ const todayStr = new Date().toISOString().slice(0, 10)
 const SEED = [
   { id: 1, date: '2026-03-25', mood: 'calm',
     text: 'Managed the breathing exercise before the chaos started. Only 3 minutes but it felt different today.',
-    petResponse: 'Three minutes of stillness matters more than you think. I noticed you were calmer when you came back.' },
+    petGenerated: false },
   { id: 2, date: '2026-03-26', mood: 'tired',
     text: "Skipped the walk. A long call ran over and I couldn't face it. Feeling a bit rubbish about it honestly.",
-    petResponse: "Some days the couch wins. That's okay. You showed up yesterday, and I'll be here tomorrow." },
+    petGenerated: false },
   { id: 3, date: '2026-03-27', mood: 'proud',
     text: "Wrote 350 words — more than the goal. Didn't even notice I'd gone over until I checked the count.",
-    petResponse: 'I saw that. You were in the zone for a while. That quiet focus — I love watching that.' },
+    petGenerated: false },
   { id: 4, date: '2026-03-28', mood: 'happy',
     text: 'Evening walk turned into an hour. Met a dog at the park — reminded me why I started all of this.',
-    petResponse: 'You came home with different energy. I felt it from across the room.' },
+    petGenerated: false },
   { id: 5, date: '2026-03-29', mood: 'anxious',
     text: 'Hard to focus today. Mind kept jumping. Did half the things on my list and quietly gave up.',
-    petResponse: "Half counts. And scattered days happen. You still opened the app — that's not nothing." },
+    petGenerated: false },
   { id: 6, date: '2026-03-30', mood: 'grateful',
     text: "Realised I've been doing this for a week. The writing habit especially feels like it's actually forming.",
-    petResponse: "A week is real. A week is a foundation. I've been watching it build." },
+    petGenerated: false },
   { id: 7, date: '2026-03-31', mood: 'calm',
     text: "Rest day. No tasks, no pressure. Just existed. Sometimes that's the whole thing.",
-    petResponse: 'Rest is part of it too. You were softer today. I liked that.' },
+    petGenerated: false },
 ]
 
 const PET_BY_MOOD = {
@@ -72,29 +71,29 @@ function LetterCard({ entry, onClick, index }) {
 
   return (
     <motion.button
-      className={styles.letter}
+      className={`${styles.letter} ${entry.petGenerated ? styles.letterPet : ''}`}
       style={{ '--shade': shade, '--rot': `${rot}deg` }}
       onClick={onClick}
       initial={{ opacity: 0, scale: 0.78, rotate: rot }}
       animate={{ opacity: 1, scale: 1, rotate: rot }}
       transition={{ duration: 0.32, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
-      whileHover={{ y: -5, rotate: 0, scale: 1.08, zIndex: 20,
-        transition: { duration: 0.16, ease: 'easeOut' } }}
+      whileHover={{ y: -5, rotate: 0, scale: 1.08, zIndex: 20, transition: { duration: 0.16 } }}
       whileTap={{ scale: 0.95 }}
     >
       <span className={styles.fold} />
       <span className={styles.rule} />
       <span className={styles.cardMonth}>{month}</span>
       <span className={styles.cardDay}>{day}</span>
-      <span className={styles.cardMoodLabel}>
-        {MOODS.find(m => m.id === entry.mood)?.label}
-      </span>
+      {entry.petGenerated
+        ? <span className={styles.cardPetTag}>by pet</span>
+        : <span className={styles.cardMoodLabel}>{MOODS.find(m => m.id === entry.mood)?.label}</span>
+      }
     </motion.button>
   )
 }
 
 // ─── Open letter overlay ──────────────────────────────────────────────────────
-function OpenLetter({ entry, petName, onClose }) {
+function OpenLetter({ entry, petName, onClose, onAddThoughts }) {
   const { full } = fmtDate(entry.date)
   const moodLabel = MOODS.find(m => m.id === entry.mood)?.label || ''
 
@@ -112,14 +111,38 @@ function OpenLetter({ entry, petName, onClose }) {
         <div className={styles.openTopFold} />
         <div className={styles.openMeta}>
           <span className={styles.openDate}>{full}</span>
-          <span className={styles.openMoodTag}>{moodLabel}</span>
+          {entry.petGenerated
+            ? <span className={styles.openPetTag}>written by {petName}</span>
+            : <span className={styles.openMoodTag}>{moodLabel}</span>
+          }
         </div>
+
         <p className={styles.openBody}>{entry.text}</p>
-        <div className={styles.openDivider}>
-          <span /><span className={styles.openDot} /><span />
-        </div>
-        <p className={styles.openResponse}>&#8220;{entry.petResponse}&#8221;</p>
-        <span className={styles.openSig}>— {petName}</span>
+
+        {/* If this is the user's own entry — show pet response */}
+        {!entry.petGenerated && (
+          <>
+            <div className={styles.openDivider}>
+              <span /><span className={styles.openDot} /><span />
+            </div>
+            <p className={styles.openResponse}>&#8220;{entry.petResponse}&#8221;</p>
+            <span className={styles.openSig}>— {petName}</span>
+          </>
+        )}
+
+        {/* If pet-generated — invite user to add their own */}
+        {entry.petGenerated && (
+          <div className={styles.openAddSection}>
+            <div className={styles.openDivider}>
+              <span /><span className={styles.openDot} /><span />
+            </div>
+            <p className={styles.openAddPrompt}>Want to add your own thoughts?</p>
+            <button className={styles.openAddBtn} onClick={() => { onClose(); onAddThoughts() }}>
+              Continue writing
+            </button>
+          </div>
+        )}
+
         <button className={styles.closeBtn} onClick={onClose}>Close</button>
       </motion.div>
     </motion.div>
@@ -127,9 +150,9 @@ function OpenLetter({ entry, petName, onClose }) {
 }
 
 // ─── Write panel ──────────────────────────────────────────────────────────────
-function WritePanel({ petName, onClose, onSave }) {
+function WritePanel({ petName, onClose, onSave, prefillMood, promptText }) {
   const [text, setText] = useState('')
-  const [mood, setMood] = useState('calm')
+  const [mood, setMood] = useState(prefillMood || 'calm')
   const [saving, setSaving] = useState(false)
 
   function handleSave() {
@@ -146,8 +169,12 @@ function WritePanel({ petName, onClose, onSave }) {
       transition={{ type: 'spring', stiffness: 300, damping: 34 }}
     >
       <div className={styles.writeHandle} />
-      <p className={styles.writeDay}>{new Date().toLocaleDateString('en', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-      <p className={styles.writeHeading}>What happened?</p>
+      <p className={styles.writeDay}>
+        {new Date().toLocaleDateString('en', { weekday: 'long', day: 'numeric', month: 'long' })}
+      </p>
+      <p className={styles.writeHeading}>
+        {promptText || 'What happened?'}
+      </p>
 
       <textarea
         className={styles.writeInput}
@@ -180,21 +207,55 @@ function WritePanel({ petName, onClose, onSave }) {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function DiaryScreen({ go, profile }) {
+export default function DiaryScreen({ go, profile, updateProfile }) {
   const petName = profile?.petName || 'your companion'
-  const [entries, setEntries] = useState(SEED)
-  const [openEntry, setOpenEntry] = useState(null)
-  const [writing, setWriting] = useState(false)
-  const [latestPet, setLatestPet] = useState(SEED[SEED.length - 1].petResponse)
+  const generatedEntry = profile?.generatedDiaryEntry || null
+
+  // Build initial entries — inject generated entry if present
+  const [entries, setEntries] = useState(() => {
+    if (generatedEntry && !SEED.some(e => e.date === generatedEntry.date)) {
+      return [...SEED, generatedEntry]
+    }
+    return SEED
+  })
+
+  const [openEntry, setOpenEntry]   = useState(null)
+  const [writing, setWriting]       = useState(false)
+  const [writePrompt, setWritePrompt] = useState(null)
+  const [latestPet, setLatestPet]   = useState(SEED[SEED.length - 1].petResponse)
+
+  // If we arrived with a generated entry, open it automatically
+  useEffect(() => {
+    if (generatedEntry) {
+      const delay = setTimeout(() => setOpenEntry(generatedEntry), 400)
+      return () => clearTimeout(delay)
+    }
+  }, [])
+
   const hasToday = entries.some(e => e.date === todayStr)
+  const hasTodayUserEntry = entries.some(e => e.date === todayStr && !e.petGenerated)
   const { month, day } = fmtDate(todayStr)
 
   function handleSave({ text, mood, petResponse }) {
-    const entry = { id: Date.now(), date: todayStr, mood, text, petResponse }
-    setEntries(p => [...p, entry])
+    // If there's already a pet-generated entry today, add a user entry alongside it
+    const userEntry = {
+      id: Date.now(),
+      date: todayStr,
+      mood,
+      text,
+      petResponse,
+      petGenerated: false,
+    }
+    setEntries(p => [...p, userEntry])
     setLatestPet(petResponse)
     setWriting(false)
-    setTimeout(() => setOpenEntry(entry), 300)
+    setWritePrompt(null)
+    setTimeout(() => setOpenEntry(userEntry), 300)
+  }
+
+  function openWritePanel(prompt) {
+    setWritePrompt(prompt || null)
+    setWriting(true)
   }
 
   return (
@@ -210,7 +271,6 @@ export default function DiaryScreen({ go, profile }) {
         <span className={styles.headerDate}>{month} {day}</span>
       </div>
 
-      {/* Pet response — typography only */}
       <div className={styles.petCard}>
         <motion.p key={latestPet} className={styles.petQuote}
           initial={{ opacity: 0, y: 3 }} animate={{ opacity: 1, y: 0 }}
@@ -219,20 +279,21 @@ export default function DiaryScreen({ go, profile }) {
         <span className={styles.petSig}>— {petName}</span>
       </div>
 
-      {/* Section header */}
       <div className={styles.section}>
         <span className={styles.sectionLabel}>March — April 2026</span>
         <span className={styles.sectionCount}>{entries.length} entries</span>
       </div>
 
-      {/* Grid */}
       <div className={styles.scroll}>
         <div className={styles.grid}>
           {entries.map((e, i) => (
             <LetterCard key={e.id} entry={e} index={i} onClick={() => setOpenEntry(e)} />
           ))}
-          {!hasToday && (
-            <motion.button className={styles.todaySlot} onClick={() => setWriting(true)}
+
+          {/* Today slot — only show if user hasn't written their own entry today */}
+          {!hasTodayUserEntry && !generatedEntry && (
+            <motion.button className={styles.todaySlot}
+              onClick={() => openWritePanel(null)}
               animate={{ opacity: [0.35, 0.8, 0.35] }}
               transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
               whileHover={{ opacity: 1, scale: 1.04 }}
@@ -241,22 +302,49 @@ export default function DiaryScreen({ go, profile }) {
               <span className={styles.todayText}>today</span>
             </motion.button>
           )}
+
+          {/* If pet wrote today but user hasn't — show "add yours" slot */}
+          {generatedEntry && !hasTodayUserEntry && (
+            <motion.button className={styles.addYoursSlot}
+              onClick={() => openWritePanel('Add your own thoughts')}
+              whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}
+            >
+              <span className={styles.addYoursPlus} />
+              <span className={styles.addYoursText}>add yours</span>
+            </motion.button>
+          )}
         </div>
       </div>
 
-      {!writing && hasToday && (
+      {/* FAB — shown when today already has a user entry */}
+      {!writing && hasTodayUserEntry && (
         <motion.button className={styles.fab}
           initial={{ scale: 0 }} animate={{ scale: 1 }}
           whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.93 }}
-          onClick={() => setWriting(true)}
+          onClick={() => openWritePanel(null)}
         >Write</motion.button>
       )}
 
       <AnimatePresence>
-        {writing && <WritePanel petName={petName} onClose={() => setWriting(false)} onSave={handleSave} />}
+        {writing && (
+          <WritePanel
+            petName={petName}
+            onClose={() => { setWriting(false); setWritePrompt(null) }}
+            onSave={handleSave}
+            promptText={writePrompt}
+          />
+        )}
       </AnimatePresence>
+
       <AnimatePresence>
-        {openEntry && <OpenLetter entry={openEntry} petName={petName} onClose={() => setOpenEntry(null)} />}
+        {openEntry && (
+          <OpenLetter
+            entry={openEntry}
+            petName={petName}
+            onClose={() => setOpenEntry(null)}
+            onAddThoughts={() => openWritePanel('Add your own thoughts')}
+          />
+        )}
       </AnimatePresence>
     </div>
   )
