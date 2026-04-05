@@ -15,7 +15,7 @@ const DEFAULT_ZOOM = 14
 const COMPANIONS = [
   { id: 1, name: 'Freya', pet: 'Moss', desc: 'A silver fox with ember eyes', style: 'stylised',
     lat: 51.521, lng: -0.102, colour: '#b8c4b0', tier: 'core',
-    room: 'A minimal studio with afternoon light' },
+    room: 'A minimal studio with afternoon light', avatar: 'silver_fox.png', model: 'silver_fox.glb' },
   { id: 2, name: 'Jackson', pet: 'Pixel', desc: 'A neon geometric cat', style: 'stylised',
     lat: 51.519, lng: -0.076, colour: '#b0b8c4', tier: 'core',
     room: 'A creative workspace, plants everywhere' },
