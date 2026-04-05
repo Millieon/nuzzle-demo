@@ -52,11 +52,11 @@ function FallbackCatRoom() {
 
 function NavBar({ go }) {
   const NAV = [
-    { label:'Home',  route:null,    active:true  },
-    { label:'Room',  route:null,    active:false },
-    { label:'Coach', route:null,    active:false },
-    { label:'Diary', route:'diary', active:false },
-    { label:'Me',    route:null,    active:false },
+    { label:'Home',      route:null,        active:true  },
+    { label:'Community', route:'community', active:false },
+    { label:'Coach',     route:null,        active:false },
+    { label:'Diary',     route:'diary',     active:false },
+    { label:'Me',        route:null,        active:false },
   ]
   return (
     <nav className={styles.nav}>
@@ -66,11 +66,11 @@ function NavBar({ go }) {
           onClick={() => item.route && go?.(item.route)}
         >
           <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke={item.active ? '#111' : '#ccc'} strokeWidth="1.5">
-            {item.label==='Home'  && <path d="M3 9.5L11 3l8 6.5V19a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>}
-            {item.label==='Room'  && <><rect x="2" y="8" width="18" height="12" rx="1.5"/><path d="M6 8V6a5 5 0 0110 0v2"/></>}
-            {item.label==='Coach' && <><circle cx="11" cy="11" r="8"/><path d="M11 7v4l2.5 2.5"/></>}
-            {item.label==='Diary' && <><rect x="4" y="2" width="14" height="18" rx="2"/><line x1="8" y1="8" x2="14" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="11" y2="16"/></>}
-            {item.label==='Me'    && <><circle cx="11" cy="8" r="3.5"/><path d="M3.5 19c0-4.142 3.358-7 7.5-7s7.5 2.858 7.5 7"/></>}
+            {item.label==='Home'      && <path d="M3 9.5L11 3l8 6.5V19a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>}
+            {item.label==='Community' && <><circle cx="11" cy="11" r="8"/><circle cx="11" cy="8" r="2.5"/><path d="M5 18c0-3 2.7-5 6-5s6 2 6 5"/></>}
+            {item.label==='Coach'     && <><circle cx="11" cy="11" r="8"/><path d="M11 7v4l2.5 2.5"/></>}
+            {item.label==='Diary'     && <><rect x="4" y="2" width="14" height="18" rx="2"/><line x1="8" y1="8" x2="14" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="11" y2="16"/></>}
+            {item.label==='Me'        && <><circle cx="11" cy="8" r="3.5"/><path d="M3.5 19c0-4.142 3.358-7 7.5-7s7.5 2.858 7.5 7"/></>}
           </svg>
           <span className={styles.navLabel}>{item.label}</span>
         </div>
@@ -125,16 +125,9 @@ No emoji. No exclamation marks. Write in the register of a journal — intimate,
 Do not start with "I". Do not use the word "journey" or "proud" or "amazing".
 Return only the diary text, nothing else.`
 
-  const apiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
-  if (!apiKey) throw new Error('No API key')
-
-  const response = await fetch('/api/messages', {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
       max_tokens: 200,

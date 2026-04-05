@@ -1,0 +1,332 @@
+/* ── Root ───────────────────────────────────────────────────────────────── */
+.root {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  background: var(--app, #F5F5F3);
+  font-family: var(--sans, 'DM Sans', sans-serif);
+  overflow: hidden;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.header {
+  display: flex; align-items: center;
+  padding: 18px 20px 12px; gap: 8px; flex-shrink: 0;
+  position: relative; z-index: 10;
+}
+.backBtn {
+  width: 32px; height: 32px;
+  display: flex; align-items: center; justify-content: center;
+  border: none; background: transparent; cursor: pointer;
+  border-radius: 50%; flex-shrink: 0; transition: background 0.15s;
+}
+.backBtn:hover { background: rgba(0,0,0,0.05); }
+.headerTitle {
+  flex: 1;
+  font-family: var(--serif, 'Playfair Display', serif);
+  font-size: 20px; font-weight: 700;
+  color: var(--ink, #111); letter-spacing: -0.3px;
+}
+
+/* ── Privacy toggle ──────────────────────────────────────────────────────── */
+.privacyWrap { position: relative; flex-shrink: 0; }
+.privacyToggle {
+  display: flex; align-items: center; gap: 5px;
+  border: none; background: transparent; cursor: pointer; padding: 4px;
+}
+.privacyPill {
+  font-size: 11px; font-weight: 600;
+  padding: 4px 10px; border-radius: 100px;
+  letter-spacing: 0.2px;
+}
+.pill_private { background: #ebebeb; color: #888; }
+.pill_friends { background: #e8eee8; color: #6a8a6a; }
+.pill_public  { background: #e8eae0; color: #7a8a60; }
+
+.privacyPanel {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.10);
+  border-radius: 12px;
+  padding: 10px 0;
+  width: 200px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+  z-index: 100;
+}
+.privacyTitle {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.8px;
+  text-transform: uppercase; color: #aaa;
+  padding: 0 14px 8px;
+}
+.privacyRow {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 14px; width: 100%;
+  border: none; background: transparent; cursor: pointer;
+  text-align: left; transition: background 0.12s;
+}
+.privacyRow:hover { background: #f8f8f6; }
+.privacyRowActive { background: #f5f5f3; }
+.privacyDot {
+  width: 7px; height: 7px; border-radius: 50%;
+  border: 1.5px solid #ccc; flex-shrink: 0;
+}
+.privacyDotActive { background: #111; border-color: #111; }
+.privacyLabel { font-size: 13px; color: #111; font-weight: 500; flex: 1; }
+.privacySub { font-size: 10px; color: #bbb; white-space: nowrap; }
+
+/* ── Search ──────────────────────────────────────────────────────────────── */
+.searchWrap {
+  display: flex; align-items: center; gap: 8px;
+  margin: 0 20px 12px;
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.09);
+  border-radius: 10px;
+  padding: 9px 12px;
+  flex-shrink: 0;
+}
+.searchIcon { flex-shrink: 0; }
+.searchInput {
+  flex: 1; border: none; background: transparent; outline: none;
+  font-family: var(--sans, 'DM Sans', sans-serif);
+  font-size: 13px; color: var(--ink, #111);
+}
+.searchInput::placeholder { color: #ccc; }
+
+/* ── Map ─────────────────────────────────────────────────────────────────── */
+.mapWrap {
+  flex: 1; position: relative; overflow: hidden;
+  border-radius: 16px; margin: 0 16px;
+  box-shadow: inset 0 0 0 0.5px rgba(0,0,0,0.07);
+}
+.leafletMap {
+  width: 100%; height: 100%;
+  border-radius: 16px;
+  z-index: 1;
+}
+
+/* ── Leaflet marker overrides ─────────────────────────────────────────────── */
+.leafletPetIcon {
+  background: none !important;
+  border: none !important;
+}
+.markerBubble {
+  display: flex; align-items: center; justify-content: center;
+  width: 42px; height: 42px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transition: transform 0.15s ease;
+  cursor: pointer;
+}
+.markerBubble:hover {
+  transform: scale(1.15);
+}
+
+.leafletYouIcon {
+  background: none !important;
+  border: none !important;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 2px;
+}
+
+/* "You are here" */
+.youDot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #111;
+  box-shadow: 0 0 0 4px rgba(0,0,0,0.10);
+  position: relative;
+}
+.youPulse {
+  position: absolute; inset: -6px;
+  border-radius: 50%;
+  border: 2px solid rgba(0,0,0,0.15);
+  animation: youPulseAnim 2.5s ease-in-out infinite;
+}
+@keyframes youPulseAnim {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 0; }
+}
+.youLabel {
+  font-size: 8.5px; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase; color: #111;
+  background: rgba(255,255,255,0.92);
+  padding: 2px 6px; border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* Private overlay */
+.privateNotice {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: flex-end;
+  padding-bottom: 20px;
+  pointer-events: none;
+  z-index: 5;
+}
+.privateText {
+  font-size: 11px; color: #aaa; margin-bottom: 6px;
+  pointer-events: none;
+}
+.privateBtn {
+  font-size: 11px; font-weight: 600; color: #111;
+  background: rgba(255,255,255,0.92);
+  border: 0.5px solid rgba(0,0,0,0.12);
+  border-radius: 100px; padding: 6px 16px;
+  cursor: pointer; pointer-events: all;
+  transition: background 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.privateBtn:hover { background: #fff; }
+
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.footer {
+  padding: 10px 20px 20px; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.footerCount { font-size: 13px; color: var(--ink, #111); }
+.footerCount strong { font-weight: 700; }
+.footerSub { font-size: 10.5px; color: var(--muted, #888); }
+
+/* ── Overlay ─────────────────────────────────────────────────────────────── */
+.overlay {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.38);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 200; padding: 0 0 0;
+}
+
+/* ── Profile card ────────────────────────────────────────────────────────── */
+.profileCard {
+  width: 100%;
+  background: var(--app, #F5F5F3);
+  border-radius: 24px 24px 0 0;
+  overflow: hidden;
+  box-shadow: 0 -4px 40px rgba(0,0,0,0.14);
+  max-height: 82vh;
+  overflow-y: auto;
+}
+.profileCard::-webkit-scrollbar { display: none; }
+
+/* Room preview */
+.roomPreview {
+  height: 160px; position: relative; overflow: hidden;
+  background: #eae6e0; flex-shrink: 0;
+}
+.roomPreviewBg {
+  position: absolute; inset: 0;
+}
+.roomFloor {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 45%;
+  background: #ddd8d0;
+}
+.roomWall {
+  position: absolute; top: 0; left: 0; right: 0; height: 60%;
+  background: #ece8e2;
+}
+.roomWindow {
+  position: absolute; top: 14px; right: 28px;
+  width: 42px; height: 52px;
+  background: #dce8f0; border-radius: 3px;
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.5);
+}
+.roomPetCenter {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.roomCaption {
+  position: absolute; bottom: 10px; left: 0; right: 0;
+  text-align: center;
+  font-size: 10px; color: rgba(0,0,0,0.4);
+  letter-spacing: 0.2px;
+}
+
+.profileBody {
+  padding: 18px 20px 4px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.profileTop {
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.profilePetName {
+  font-family: var(--serif, 'Playfair Display', serif);
+  font-size: 22px; font-weight: 700; color: var(--ink, #111);
+  line-height: 1.1; margin-bottom: 3px;
+}
+.profileOwner { font-size: 12px; color: var(--muted, #888); }
+.profileStyle {
+  font-size: 9.5px; font-weight: 600; letter-spacing: 0.6px;
+  text-transform: uppercase; color: #bbb;
+  background: #f0ede8; border-radius: 4px;
+  padding: 4px 8px; margin-top: 2px;
+}
+.profileDesc {
+  font-family: var(--serif, 'Playfair Display', serif);
+  font-style: italic; font-size: 14px; line-height: 1.55;
+  color: rgba(0,0,0,0.55);
+}
+
+/* ── Gift ────────────────────────────────────────────────────────────────── */
+.sendGiftTrigger {
+  width: 100%; padding: 11px;
+  border: 0.5px solid rgba(0,0,0,0.12); border-radius: 8px;
+  background: transparent;
+  font-family: var(--sans, 'DM Sans', sans-serif);
+  font-size: 13px; font-weight: 600; color: var(--ink, #111);
+  cursor: pointer; transition: background 0.15s;
+}
+.sendGiftTrigger:hover { background: rgba(0,0,0,0.04); }
+
+.giftPanel {
+  background: #faf9f7; border-radius: 10px;
+  padding: 14px; display: flex; flex-direction: column; gap: 10px;
+}
+.giftLabel {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.7px;
+  text-transform: uppercase; color: #aaa;
+}
+.giftGrid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.giftBtn {
+  padding: 10px 8px;
+  border: 0.5px solid rgba(0,0,0,0.10); border-radius: 8px;
+  background: #fff;
+  font-family: var(--sans, 'DM Sans', sans-serif);
+  font-size: 12px; color: var(--ink, #111);
+  cursor: pointer; position: relative;
+  transition: all 0.15s; text-align: center;
+}
+.giftBtn:hover:not(.giftLocked) { border-color: rgba(0,0,0,0.28); }
+.giftLocked { opacity: 0.45; cursor: default; }
+.giftLockTag {
+  display: block; font-size: 8.5px; font-weight: 700;
+  letter-spacing: 0.4px; text-transform: uppercase;
+  color: #bbb; margin-top: 3px;
+}
+.giftCancel {
+  font-size: 12px; color: #aaa; border: none;
+  background: transparent; cursor: pointer; padding: 4px;
+  align-self: center;
+}
+
+.giftSent {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 14px;
+  background: #f5f5f2; border-radius: 8px;
+  font-size: 13px; color: var(--ink, #111);
+}
+.giftSentIcon { font-size: 14px; }
+
+.closeBtn {
+  display: block; margin: 12px 20px 24px;
+  width: calc(100% - 40px);
+  padding: 11px;
+  background: rgba(0,0,0,0.05); border: none; border-radius: 8px;
+  font-family: var(--sans, 'DM Sans', sans-serif);
+  font-size: 13px; color: var(--ink, #111);
+  cursor: pointer; transition: background 0.15s;
+}
+.closeBtn:hover { background: rgba(0,0,0,0.09); }
