@@ -24,7 +24,7 @@ const COMPANIONS = [
     room: 'A cosy London flat, warm lamp light', avatar: 'cloud_creature.png', model: 'cloud_creature.glb' },
   { id: 4, name: 'Moka', pet: 'Cleo', desc: 'A realistic Dachshund with amber eyes', style: 'realistic',
     lat: 51.508, lng: -0.095, colour: '#c0b8b4', tier: 'core',
-    room: 'A Southwark apartment, high ceilings' },
+    room: 'A Southwark apartment, high ceilings', avatar: 'Dachshund.png', model: 'Dachshund.glb' },
   { id: 5, name: 'Elaine', pet: 'Bruno', desc: 'A golden retriever, always grinning', style: 'realistic',
     lat: 51.523, lng: -0.115, colour: '#c8c0a8', tier: 'plus',
     room: 'A bright kitchen with a garden view', avatar: 'poddle_dog.png', model: 'poddle_dog.glb' },
