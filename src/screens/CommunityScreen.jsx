@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useGLTF, ContactShadows } from '@react-three/drei'
 import styles from './CommunityScreen.module.css'
 
 // ─── London center ───────────────────────────────────────────────────────────
@@ -25,7 +27,7 @@ const COMPANIONS = [
     room: 'A Southwark apartment, high ceilings' },
   { id: 5, name: 'Elaine', pet: 'Bruno', desc: 'A golden retriever, always grinning', style: 'realistic',
     lat: 51.523, lng: -0.115, colour: '#c8c0a8', tier: 'plus',
-    room: 'A bright kitchen with a garden view' },
+    room: 'A bright kitchen with a garden view', avatar: 'poddle_dog.png', model: 'poddle_dog.glb' },
   { id: 6, name: 'Ivan', pet: 'Luka', desc: 'A calm grey wolf pup', style: 'stylised',
     lat: 51.505, lng: -0.075, colour: '#b4b8b8', tier: 'core',
     room: 'A Borough home office, neat desk' },
@@ -104,11 +106,14 @@ function PetDot({ colour, size = 32, style = 'stylised' }) {
 }
 
 // ─── Leaflet custom icons ─────────────────────────────────────────────────────
-function createPetIcon(colour, style) {
+function createPetIcon(colour, style, avatar) {
+  const inner = avatar
+    ? `<img src="${import.meta.env.BASE_URL}${avatar}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+    : petSvgHtml(colour, style)
   return L.divIcon({
     className: styles.leafletPetIcon,
     html: `<div class="${styles.markerBubble}">
-      ${petSvgHtml(colour, style)}
+      ${inner}
     </div>`,
     iconSize: [42, 42],
     iconAnchor: [21, 21],
@@ -141,6 +146,23 @@ function FitBounds({ companions }) {
   return null
 }
 
+// ─── 3D pet model for profile room ───────────────────────────────────────────
+function RoomPet({ model }) {
+  const meshRef = useRef()
+  const { scene } = useGLTF(`${import.meta.env.BASE_URL}${model}`)
+  const s = useRef({ bob: 0, phase: 'idle', timer: 0, angle: 0 })
+
+  useFrame((_, dt) => {
+    const m = meshRef.current; if (!m) return
+    const r = s.current
+    r.bob += dt * 2.5
+    m.position.y = -1.1 + Math.sin(r.bob) * 0.02
+    m.rotation.y += dt * 0.3
+  })
+
+  return <primitive ref={meshRef} object={scene} position={[0, -1.1, 0]} scale={1.6} rotation={[0, Math.PI, 0]} />
+}
+
 // ─── Profile card overlay ─────────────────────────────────────────────────────
 function ProfileCard({ companion, onClose, isCoreUser }) {
   const [giftSent, setGiftSent] = useState(null)
@@ -165,15 +187,35 @@ function ProfileCard({ companion, onClose, isCoreUser }) {
       >
         {/* Room preview */}
         <div className={styles.roomPreview}>
-          <div className={styles.roomPreviewBg}>
-            <div className={styles.roomFloor} />
-            <div className={styles.roomWall} />
-            <div className={styles.roomWindow} />
-          </div>
-          <div className={styles.roomPetCenter}>
-            <PetDot colour={companion.colour} size={56} style={companion.style} />
-          </div>
-          <p className={styles.roomCaption}>{companion.room}</p>
+          {companion.model ? (
+            <>
+              <Canvas
+                camera={{ position: [0, 1.2, 4.5], fov: 38 }}
+                gl={{ alpha: true, antialias: true, powerPreference: 'default' }}
+                style={{ position: 'absolute', inset: 0 }}
+              >
+                <ambientLight intensity={0.9} />
+                <directionalLight position={[3, 5, 4]} intensity={0.6} />
+                <Suspense fallback={null}>
+                  <RoomPet model={companion.model} />
+                </Suspense>
+                <ContactShadows position={[0, -1.55, 0]} opacity={0.10} scale={4} blur={2} far={1} />
+              </Canvas>
+              <p className={styles.roomCaption}>{companion.room}</p>
+            </>
+          ) : (
+            <>
+              <div className={styles.roomPreviewBg}>
+                <div className={styles.roomFloor} />
+                <div className={styles.roomWall} />
+                <div className={styles.roomWindow} />
+              </div>
+              <div className={styles.roomPetCenter}>
+                <PetDot colour={companion.colour} size={56} style={companion.style} />
+              </div>
+              <p className={styles.roomCaption}>{companion.room}</p>
+            </>
+          )}
         </div>
 
         <div className={styles.profileBody}>
@@ -341,7 +383,7 @@ export default function CommunityScreen({ go, profile }) {
             <Marker
               key={c.id}
               position={[c.lat, c.lng]}
-              icon={createPetIcon(c.colour, c.style)}
+              icon={createPetIcon(c.colour, c.style, c.avatar)}
               eventHandlers={{ click: () => setSelected(c) }}
             />
           ))}
