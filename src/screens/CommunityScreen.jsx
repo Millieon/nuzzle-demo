@@ -30,13 +30,13 @@ const COMPANIONS = [
     room: 'A bright kitchen with a garden view', avatar: 'poddle_dog.png', model: 'poddle_dog.glb' },
   { id: 6, name: 'Ivan', pet: 'Luka', desc: 'A cute little pig', style: 'stylised',
     lat: 51.505, lng: -0.075, colour: '#b4b8b8', tier: 'core',
-    room: 'A Borough home office, neat desk' },
+    room: 'A Borough home office, neat desk', avatar: 'cute_pig.png', model: 'cute_pig.glb' },
   { id: 7, name: 'Sam', pet: 'Dot', desc: 'A sleek Abyssinian cat, very still', style: 'stylised',
     lat: 51.518, lng: -0.055, colour: '#a8a8a8', tier: 'free',
     room: 'A London studio, productivity corner', avatar: 'aby_cat.png', model: 'aby_cat.glb' },
   { id: 8, name: 'Alfie', pet: 'Toast', desc: 'A cute baby tiger, always curious', style: 'realistic',
     lat: 51.514, lng: -0.088, colour: '#c8b8a0', tier: 'plus',
-    room: 'A shared flat, busy windowsill' },
+    room: 'A shared flat, busy windowsill', avatar: 'curious_tiger.png', model: 'curious_tiger.glb' },
 ]
 
 const GIFTS = [
