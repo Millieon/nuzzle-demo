@@ -22,7 +22,7 @@ const COMPANIONS = [
   { id: 3, name: 'Rynn', pet: 'Shiro', desc: 'A tiny cloud creature with ears', style: 'fantastical',
     lat: 51.512, lng: -0.065, colour: '#c4c0b8', tier: 'free',
     room: 'A cosy London flat, warm lamp light', avatar: 'cloud_creature.png', model: 'cloud_creature.glb' },
-  { id: 4, name: 'Moka', pet: 'Cleo', desc: 'A realistic tabby with amber eyes', style: 'realistic',
+  { id: 4, name: 'Moka', pet: 'Cleo', desc: 'A realistic Dachshund with amber eyes', style: 'realistic',
     lat: 51.508, lng: -0.095, colour: '#c0b8b4', tier: 'core',
     room: 'A Southwark apartment, high ceilings' },
   { id: 5, name: 'Elaine', pet: 'Bruno', desc: 'A golden retriever, always grinning', style: 'realistic',
@@ -30,13 +30,13 @@ const COMPANIONS = [
     room: 'A bright kitchen with a garden view', avatar: 'poddle_dog.png', model: 'poddle_dog.glb' },
   { id: 6, name: 'Ivan', pet: 'Luka', desc: 'A cute little pig', style: 'stylised',
     lat: 51.505, lng: -0.075, colour: '#b4b8b8', tier: 'core',
-    room: 'A Borough home office, neat desk', avatar: 'cute_pig.png', model: 'cute_pig.glb' },
-  { id: 7, name: 'Sam', pet: 'Dot', desc: 'A sleek black cat, very still', style: 'stylised',
+    room: 'A Borough home office, neat desk' },
+  { id: 7, name: 'Sam', pet: 'Dot', desc: 'A sleek Abyssinian cat, very still', style: 'stylised',
     lat: 51.518, lng: -0.055, colour: '#a8a8a8', tier: 'free',
-    room: 'A London studio, productivity corner' },
-  { id: 8, name: 'Alfie', pet: 'Toast', desc: 'A ginger cat, always curious', style: 'realistic',
+    room: 'A London studio, productivity corner', avatar: 'aby_cat.png', model: 'aby_cat.glb' },
+  { id: 8, name: 'Alfie', pet: 'Toast', desc: 'A cute baby tiger, always curious', style: 'realistic',
     lat: 51.514, lng: -0.088, colour: '#c8b8a0', tier: 'plus',
-    room: 'A shared flat, busy windowsill', avatar: 'curious_tiger.png', model: 'curious_tiger.glb' },
+    room: 'A shared flat, busy windowsill' },
 ]
 
 const GIFTS = [
