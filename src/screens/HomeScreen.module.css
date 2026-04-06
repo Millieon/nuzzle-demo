@@ -79,6 +79,126 @@
   background: radial-gradient(ellipse, rgba(255,255,255,0.7) 0%, transparent 70%);
 }
 
+/* Poster */
+.poster {
+  position: absolute;
+  padding: 4px;
+  background: #fff;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.12), 0 0 0 0.5px rgba(0,0,0,0.06);
+  border-radius: 1px;
+  z-index: 4;
+  touch-action: none;
+  user-select: none;
+}
+.poster img {
+  display: block;
+  width: 22vw;
+  height: auto;
+  pointer-events: none;
+}
+.posterDraggable {
+  cursor: grab;
+  outline: 2px dashed rgba(0,0,0,0.15);
+  outline-offset: 3px;
+}
+.posterDraggable:active {
+  cursor: grabbing;
+}
+.posterMenuBtn {
+  position: absolute;
+  top: -10px; right: -10px;
+  width: 24px; height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #555;
+}
+.posterResize {
+  position: absolute;
+  right: -2px; bottom: -2px;
+  width: 18px; height: 18px;
+  cursor: nwse-resize;
+  touch-action: none;
+  pointer-events: auto;
+  background: transparent;
+  z-index: 3;
+}
+.posterResize::after {
+  content: '';
+  position: absolute;
+  right: 3px; bottom: 3px;
+  width: 8px; height: 8px;
+  border-right: 2px solid rgba(0,0,0,0.25);
+  border-bottom: 2px solid rgba(0,0,0,0.25);
+  border-radius: 0 0 1px 0;
+}
+
+.addPosterBtn {
+  position: absolute;
+  left: 48%; top: 15%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1.5px dashed rgba(0,0,0,0.15);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.5);
+  font-family: var(--sans);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(0,0,0,0.4);
+  cursor: pointer;
+  z-index: 4;
+}
+.addPosterBtn:active {
+  background: rgba(255,255,255,0.8);
+}
+
+/* Poster menu overlay */
+.posterMenuOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.posterMenu {
+  background: #fff;
+  border-radius: 14px;
+  padding: 8px;
+  min-width: 200px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+}
+.posterMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.posterMenuItem:active {
+  background: rgba(0,0,0,0.05);
+}
+.posterMenuRemove {
+  color: #c44;
+}
+
 /* Shelf */
 .shelf {
   position: absolute;
@@ -106,6 +226,7 @@
   position: absolute;
   inset: 0;
   z-index: 5;
+  pointer-events: none;
 }
 
 /* Speech bubble */
@@ -154,6 +275,97 @@
   font-size: 10px;
   font-weight: 500;
   color: rgba(0,0,0,0.35);
+}
+
+/* AR button in top bar */
+.arBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px 6px 10px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.06);
+  backdrop-filter: blur(8px);
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+.arBtn:active {
+  transform: scale(0.95);
+  background: rgba(0,0,0,0.1);
+}
+.arBtn svg {
+  opacity: 0.7;
+}
+
+/* AR fullscreen overlay */
+.arOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1000;
+  background: #f5f2ee;
+  display: flex;
+  flex-direction: column;
+}
+.arHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 52px 16px 12px;
+  background: rgba(245,242,238,0.95);
+  backdrop-filter: blur(10px);
+}
+.arCloseBtn {
+  width: 36px; height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.06);
+  color: #333;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.arCloseBtn:active {
+  background: rgba(0,0,0,0.12);
+}
+.arTitle {
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+  letter-spacing: 0.02em;
+}
+.arLaunchBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 28px;
+  border: none;
+  border-radius: 30px;
+  background: #222;
+  color: #fff;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  transition: transform 0.15s, background 0.2s;
+  white-space: nowrap;
+}
+.arLaunchBtn:active {
+  transform: translateX(-50%) scale(0.96);
+  background: #444;
 }
 
 /* ── Task banner ─────────────────────────────────────────────────────────── */
@@ -243,32 +455,148 @@
 }
 .navActive .navLabel { color: var(--ink); }
 
-/* Drag hint on room canvas */
-.dragHint {
+/* Room action buttons group */
+.roomActions {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  z-index: 25;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Add furniture "+" button */
+.addFurnitureBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: rgba(17,17,17,0.85);
+  border: none;
+  border-radius: 50%;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  transition: all 0.2s ease;
+}
+.addFurnitureBtn:hover {
+  background: rgba(17,17,17,0.95);
+  box-shadow: 0 3px 16px rgba(0,0,0,0.25);
+  transform: scale(1.05);
+}
+.addFurnitureBtn:active { transform: scale(0.95); }
+
+/* Inventory button */
+.inventoryBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 50%;
+  color: #555;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+.inventoryBtn:hover {
+  background: rgba(255,255,255,0.95);
+  color: #222;
+}
+.inventoryBtn:active { transform: scale(0.95); }
+.inventoryBadge {
+  position: absolute;
+  top: -4px; right: -4px;
+  min-width: 16px; height: 16px;
+  background: #111;
+  color: #fff;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+}
+
+/* Arrange room button */
+.arrangeBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 22px;
+  padding: 8px 14px 8px 11px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.arrangeBtn:hover {
+  background: rgba(255,255,255,0.95);
+  color: #222;
+  box-shadow: 0 3px 16px rgba(0,0,0,0.12);
+}
+.arrangeBtn:active {
+  transform: scale(0.96);
+}
+
+/* Arrange mode banner */
+.arrangeBanner {
   position: absolute;
   bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 5px;
-  background: rgba(255,255,255,0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 0.5px solid rgba(0,0,0,0.07);
-  border-radius: 20px;
-  padding: 5px 12px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  color: #888;
-  pointer-events: none;
+  gap: 12px;
+  background: rgba(17,17,17,0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 24px;
+  padding: 8px 8px 8px 16px;
+  z-index: 25;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   white-space: nowrap;
-  animation: fadeHint 0.5s ease 1s both;
 }
-
-@keyframes fadeHint {
-  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
-  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+.arrangeBannerText {
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+}
+.arrangeDoneBtn {
+  background: #fff;
+  border: none;
+  border-radius: 18px;
+  padding: 6px 16px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: #111;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.arrangeDoneBtn:hover {
+  background: #f0f0ee;
+}
+.arrangeDoneBtn:active {
+  transform: scale(0.95);
 }
 .navClickable { cursor: pointer; }
 
@@ -349,3 +677,228 @@
   letter-spacing: 0.1px;
   padding-left: 1px;
 }
+
+/* ── Add Furniture Panel ─────────────────────────────────────────────────── */
+.addPanelOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.addPanel {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px 28px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+}
+.addPanelHandle {
+  width: 36px; height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+.addPanelTitle {
+  font-family: var(--serif);
+  font-size: 20px;
+  color: #111;
+  margin: 0 0 4px;
+}
+.addPanelSub {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: #999;
+  margin: 0 0 18px;
+}
+.addPanelOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.addPanelOption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  background: #f8f8f6;
+  border: 0.5px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+.addPanelOption:hover {
+  background: #f2f2ef;
+  border-color: rgba(0,0,0,0.14);
+}
+.addPanelOption:active { transform: scale(0.98); }
+.addPanelOptionIcon {
+  width: 40px; height: 40px;
+  background: #fff;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom: 4px;
+}
+.addPanelOptionLabel {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: #222;
+}
+.addPanelOptionDesc {
+  font-family: var(--sans);
+  font-size: 12px;
+  color: #999;
+}
+.addPanelTextarea {
+  width: 100%;
+  background: #f8f8f6;
+  border: 0.5px solid rgba(0,0,0,0.1);
+  border-radius: 12px;
+  padding: 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  color: #333;
+  resize: none;
+  outline: none;
+  margin: 8px 0 14px;
+  box-sizing: border-box;
+}
+.addPanelTextarea:focus {
+  border-color: rgba(0,0,0,0.2);
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.04);
+}
+.addPanelGenBtn {
+  width: 100%;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.addPanelGenBtn:hover { background: #222; }
+.addPanelGenBtn:active { transform: scale(0.98); }
+.addPanelGenBtn:disabled { background: #ccc; cursor: not-allowed; }
+.addPanelGenerating {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 32px 0;
+}
+.addPanelSpinner {
+  display: flex; gap: 6px;
+}
+.addPanelSpinner span {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #111;
+  animation: genPulse 1.3s ease-in-out infinite;
+}
+.addPanelGenText {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: #888;
+  margin: 0;
+}
+
+/* ── Inventory drawer ────────────────────────────────────────────────────── */
+.inventoryOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0,0,0,0.35);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.inventoryPanel {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  padding: 12px 20px 28px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.15);
+  max-height: 60%;
+  overflow-y: auto;
+}
+.inventoryEmpty {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: #aaa;
+  text-align: center;
+  padding: 24px 0;
+  margin: 0;
+}
+.inventorySectionLabel {
+  font-family: var(--sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin: 14px 0 8px;
+}
+.inventoryGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inventoryItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8f8f6;
+  border: 0.5px solid rgba(0,0,0,0.06);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+.inventoryItemIcon {
+  width: 40px; height: 40px;
+  background: #fff;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.inventoryItemName {
+  flex: 1;
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+.inventoryPlaceBtn,
+.inventoryRemoveBtn {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.inventoryPlaceBtn {
+  background: #111;
+  color: #fff;
+}
+.inventoryPlaceBtn:hover { background: #222; }
+.inventoryPlaceBtn:active { transform: scale(0.96); }
+.inventoryRemoveBtn {
+  background: #f0eeec;
+  color: #888;
+}
+.inventoryRemoveBtn:hover { background: #e8e5e2; color: #555; }
+.inventoryRemoveBtn:active { transform: scale(0.96); }
