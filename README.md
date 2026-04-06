@@ -1,6 +1,7 @@
 # Nuzzle Demo
 
 Interactive app demo for the Nuzzle landing page — React + Three.js (React Three Fiber).
+project running on: https://millieon.github.io/nuzzle-demo/
 
 ## Setup in 3 steps
 
