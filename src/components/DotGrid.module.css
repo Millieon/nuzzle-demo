@@ -1,0 +1,56 @@
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 16px;
+}
+
+.monthRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.monthLabel {
+  font-family: var(--sans);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  width: 24px;
+  flex-shrink: 0;
+  padding-top: 1px;
+}
+
+.dotsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--faint);
+  background: transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+
+.dotFilled {
+  border: none;
+}
+
+.dotToday {
+  border-color: var(--ink);
+}
+
+.dotFuture {
+  opacity: 0.2;
+  cursor: default;
+  pointer-events: none;
+}
