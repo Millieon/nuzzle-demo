@@ -491,7 +491,7 @@ function NavBar({ go }) {
   const NAV = [
     { label:'Home',      route:null,        active:true  },
     { label:'Community', route:'community', active:false },
-    { label:'Coach',     route:null,        active:false },
+    { label:'Coach',     route:'coach',     active:false },
     { label:'Diary',     route:'diary',     active:false },
     { label:'Me',        route:null,        active:false },
   ]

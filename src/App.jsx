@@ -15,6 +15,7 @@ const ChatScreen      = lazy(() => import('./screens/ChatScreen'))
 const HomeScreen      = lazy(() => import('./screens/HomeScreen'))
 const DiaryScreen     = lazy(() => import('./screens/DiaryScreen'))
 const CommunityScreen = lazy(() => import('./screens/CommunityScreen'))
+const CoachScreen     = lazy(() => import('./screens/CoachScreen'))
 
 function ScreenLoader() {
   return (
@@ -38,7 +39,7 @@ function ScreenLoader() {
 const SCREENS = [
   'welcome',
   'goal', 'schedule', 'past', 'motivation', 'tone', 'companion',
-  'gen', 'confirm', 'naming', 'sounds', 'chat', 'home', 'diary', 'community',
+  'gen', 'confirm', 'naming', 'sounds', 'chat', 'home', 'diary', 'community', 'coach',
 ]
 
 export default function App() {
@@ -70,6 +71,7 @@ export default function App() {
     home:   <Suspense fallback={<ScreenLoader />}><HomeScreen    {...p} /></Suspense>,
     diary:     <Suspense fallback={<ScreenLoader />}><DiaryScreen      {...p} /></Suspense>,
     community: <Suspense fallback={<ScreenLoader />}><CommunityScreen  {...p} /></Suspense>,
+    coach:     <Suspense fallback={<ScreenLoader />}><CoachScreen      {...p} /></Suspense>,
   }
 
   return (
