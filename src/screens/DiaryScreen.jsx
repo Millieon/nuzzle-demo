@@ -211,8 +211,13 @@ export default function DiaryScreen({ go, profile, updateProfile }) {
   const petName = profile?.petName || 'your companion'
   const generatedEntry = profile?.generatedDiaryEntry || null
 
-  // Build initial entries — inject generated entry if present
+  // Build initial entries — from storage if available, otherwise seed.
   const [entries, setEntries] = useState(() => {
+    try {
+      const raw = localStorage.getItem('nuzzle-diary-entries')
+      const stored = raw ? JSON.parse(raw) : null
+      if (Array.isArray(stored) && stored.length) return stored
+    } catch {}
     if (generatedEntry && !SEED.some(e => e.date === generatedEntry.date)) {
       return [...SEED, generatedEntry]
     }
@@ -227,10 +232,19 @@ export default function DiaryScreen({ go, profile, updateProfile }) {
   // If we arrived with a generated entry, open it automatically
   useEffect(() => {
     if (generatedEntry) {
+      setEntries((prev) => {
+        if (prev.some(e => e.date === generatedEntry.date && e.petGenerated)) return prev
+        return [...prev, generatedEntry]
+      })
       const delay = setTimeout(() => setOpenEntry(generatedEntry), 400)
       return () => clearTimeout(delay)
     }
   }, [])
+
+  // Persist entries so Me screen can show a peek.
+  useEffect(() => {
+    try { localStorage.setItem('nuzzle-diary-entries', JSON.stringify(entries)) } catch {}
+  }, [entries])
 
   const hasToday = entries.some(e => e.date === todayStr)
   const hasTodayUserEntry = entries.some(e => e.date === todayStr && !e.petGenerated)

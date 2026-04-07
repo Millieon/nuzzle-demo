@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
 import styles from './HomeScreen.module.css'
+import NavBar from '../components/NavBar'
 
 // ── Collision helper ──────────────────────────────────────────────────────
 const MIN_DIST = 1.2 // minimum distance between furniture centers
@@ -484,35 +485,6 @@ function InventoryDrawer({ assets, placed, onPlace, onRemove, onClose }) {
         )}
       </motion.div>
     </motion.div>
-  )
-}
-
-function NavBar({ go }) {
-  const NAV = [
-    { label:'Home',      route:null,        active:true  },
-    { label:'Community', route:'community', active:false },
-    { label:'Coach',     route:'coach',     active:false },
-    { label:'Diary',     route:'diary',     active:false },
-    { label:'Me',        route:null,        active:false },
-  ]
-  return (
-    <nav className={styles.nav}>
-      {NAV.map(item => (
-        <div key={item.label}
-          className={`${styles.navItem} ${item.active ? styles.navActive : ''} ${item.route ? styles.navClickable : ''}`}
-          onClick={() => item.route && go?.(item.route)}
-        >
-          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke={item.active ? '#111' : '#ccc'} strokeWidth="1.5">
-            {item.label==='Home'      && <path d="M3 9.5L11 3l8 6.5V19a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/>}
-            {item.label==='Community' && <><circle cx="11" cy="11" r="8"/><circle cx="11" cy="8" r="2.5"/><path d="M5 18c0-3 2.7-5 6-5s6 2 6 5"/></>}
-            {item.label==='Coach'     && <><circle cx="11" cy="11" r="8"/><path d="M11 7v4l2.5 2.5"/></>}
-            {item.label==='Diary'     && <><rect x="4" y="2" width="14" height="18" rx="2"/><line x1="8" y1="8" x2="14" y2="8"/><line x1="8" y1="12" x2="14" y2="12"/><line x1="8" y1="16" x2="11" y2="16"/></>}
-            {item.label==='Me'        && <><circle cx="11" cy="8" r="3.5"/><path d="M3.5 19c0-4.142 3.358-7 7.5-7s7.5 2.858 7.5 7"/></>}
-          </svg>
-          <span className={styles.navLabel}>{item.label}</span>
-        </div>
-      ))}
-    </nav>
   )
 }
 
@@ -1079,7 +1051,7 @@ export default function HomeScreen({ go, profile, updateProfile, steps = [], set
         )}
       </AnimatePresence>
 
-      <NavBar go={go} />
+      <NavBar go={go} active="home" />
 
       {/* AR Viewer overlay */}
       <AnimatePresence>

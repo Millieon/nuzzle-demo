@@ -17,6 +17,7 @@ const HomeScreen      = lazy(() => import('./screens/HomeScreen'))
 const DiaryScreen     = lazy(() => import('./screens/DiaryScreen'))
 const CommunityScreen = lazy(() => import('./screens/CommunityScreen'))
 const CoachScreen     = lazy(() => import('./screens/CoachScreen'))
+const MeScreen        = lazy(() => import('./screens/MeScreen'))
 
 function ScreenLoader() {
   return (
@@ -40,12 +41,19 @@ function ScreenLoader() {
 const SCREENS = [
   'welcome',
   'goal', 'schedule', 'past', 'motivation', 'tone', 'companion',
-  'gen', 'confirm', 'naming', 'sounds', 'chat', 'home', 'diary', 'community', 'coach',
+  'gen', 'confirm', 'naming', 'sounds', 'chat', 'home', 'diary', 'community', 'coach', 'me',
 ]
 
 export default function App() {
   const [screen, setScreen] = useState('welcome')
-  const [profile, setProfile] = useState({})
+  const [profile, setProfile] = useState(() => {
+    try {
+      const raw = localStorage.getItem('nuzzle-profile')
+      return raw ? JSON.parse(raw) : {}
+    } catch {
+      return {}
+    }
+  })
   const [dir, setDir] = useState(1)
   const todayKey = useMemo(() => {
     const todayStr = new Date().toISOString().slice(0, 10)
@@ -108,6 +116,10 @@ export default function App() {
   const updateProfile = (key, val) => setProfile(p => ({ ...p, [key]: val }))
   const p = { go, profile, updateProfile, steps, setSteps }
 
+  useEffect(() => {
+    try { localStorage.setItem('nuzzle-profile', JSON.stringify(profile)) } catch {}
+  }, [profile])
+
   const screenMap = {
     welcome:    <WelcomeScreen    {...p} />,
     goal:       <GoalScreen       {...p} />,
@@ -125,6 +137,7 @@ export default function App() {
     diary:     <Suspense fallback={<ScreenLoader />}><DiaryScreen      {...p} /></Suspense>,
     community: <Suspense fallback={<ScreenLoader />}><CommunityScreen  {...p} /></Suspense>,
     coach:     <Suspense fallback={<ScreenLoader />}><CoachScreen      {...p} /></Suspense>,
+    me:        <Suspense fallback={<ScreenLoader />}><MeScreen         {...p} /></Suspense>,
   }
 
   return (

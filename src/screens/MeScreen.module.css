@@ -1,0 +1,285 @@
+.root{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  min-height:844px;
+  background:#F5F5F3;
+  overflow:hidden;
+}
+
+.header{
+  height:64px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 16px;
+  background:#F5F5F3;
+  flex-shrink:0;
+}
+
+.backBtn{
+  width:38px;
+  height:38px;
+  border-radius:999px;
+  border:0.5px solid rgba(0,0,0,0.10);
+  background:rgba(255,255,255,0.65);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+}
+
+.headerTitle{
+  font-family:var(--sans);
+  font-size:12px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:#111;
+  opacity:0.85;
+}
+
+.toneBadge{
+  font-family:var(--sans);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:#111;
+  background:#fff;
+  border:0.5px solid rgba(0,0,0,0.10);
+  padding:8px 10px;
+  border-radius:999px;
+}
+
+.scroll{
+  flex:1;
+  overflow:auto;
+  padding:14px 16px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.narrativeCard{
+  background:#111;
+  border-radius:18px;
+  padding:16px 16px 14px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.14);
+}
+
+.narrativeText{
+  font-family:'Playfair Display', serif;
+  font-style:italic;
+  font-size:16px;
+  line-height:1.55;
+  color:rgba(255,255,255,0.92);
+  margin:0 0 10px 0;
+}
+
+.narrativeHint{
+  font-family:var(--sans);
+  font-size:11px;
+  color:rgba(255,255,255,0.52);
+}
+
+.sectionRow{
+  display:flex;
+  align-items:baseline;
+  justify-content:space-between;
+  margin-top:4px;
+}
+
+.sectionTitle{
+  font-family:var(--sans);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:#777;
+}
+
+.sectionSub{
+  font-family:var(--sans);
+  font-size:11px;
+  color:#aaa;
+}
+
+.milestones{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.milestone{
+  background:#fff;
+  border:0.5px solid rgba(0,0,0,0.08);
+  border-radius:14px;
+  padding:12px 12px 10px;
+}
+
+.milestoneTop{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:6px;
+}
+
+.milestoneTitle{
+  font-family:var(--sans);
+  font-size:13px;
+  font-weight:600;
+  color:#111;
+}
+
+.openTag,.lockTag{
+  font-family:var(--sans);
+  font-size:9px;
+  font-weight:600;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  padding:6px 8px;
+  border-radius:999px;
+  border:0.5px solid rgba(0,0,0,0.10);
+}
+.openTag{ color:#111; background:#FAFAF8; }
+.lockTag{ color:#888; background:#F5F5F3; }
+
+.milestoneSub{
+  font-family:var(--sans);
+  font-size:12px;
+  color:#777;
+  line-height:1.4;
+  margin:0;
+}
+
+.milestoneCurrent{
+  border-color:rgba(17,17,17,0.22);
+  box-shadow:0 6px 18px rgba(0,0,0,0.06);
+}
+
+.milestoneLocked{
+  opacity:0.55;
+  filter:blur(0.2px);
+}
+
+.toneGrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.toneCard{
+  text-align:left;
+  background:#fff;
+  border:0.5px solid rgba(0,0,0,0.10);
+  border-radius:14px;
+  padding:12px 12px 10px;
+  cursor:pointer;
+  transition:transform 0.15s ease, border 0.15s ease;
+}
+.toneCard:hover{ transform:translateY(-1px); }
+.toneCardActive{ border:1.5px solid #111; }
+
+.toneName{
+  font-family:var(--sans);
+  font-size:12px;
+  font-weight:600;
+  color:#111;
+  display:block;
+  margin-bottom:6px;
+}
+.toneDesc{
+  font-family:var(--sans);
+  font-size:11px;
+  color:#888;
+  line-height:1.4;
+}
+
+.diaryCard{
+  background:#fff;
+  border:0.5px solid rgba(0,0,0,0.10);
+  border-radius:16px;
+  padding:14px 14px 12px;
+  cursor:pointer;
+}
+
+.diaryPeek{
+  font-family:'Playfair Display', serif;
+  font-style:italic;
+  font-size:15px;
+  line-height:1.55;
+  color:#111;
+  margin:0 0 10px 0;
+}
+
+.diaryMeta{
+  display:block;
+  font-family:var(--sans);
+  font-size:11px;
+  color:#999;
+  margin-bottom:10px;
+}
+
+.diaryCta{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:12px 14px;
+  background:#111;
+  color:#fff;
+  font-family:var(--sans);
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.basicCard{
+  background:#fff;
+  border:0.5px solid rgba(0,0,0,0.10);
+  border-radius:16px;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.basicRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.basicLabel{
+  font-family:var(--sans);
+  font-size:11px;
+  color:#888;
+}
+
+.basicValue{
+  font-family:var(--sans);
+  font-size:11px;
+  color:#111;
+  text-align:right;
+}
+
+.basicValueMuted{
+  font-family:var(--sans);
+  font-size:11px;
+  color:#aaa;
+  text-align:right;
+}
+
+.disabledBtn{
+  width:100%;
+  border:none;
+  border-radius:12px;
+  padding:12px 14px;
+  background:#F5F5F3;
+  color:#aaa;
+  font-family:var(--sans);
+  font-size:12px;
+  font-weight:600;
+}
+
