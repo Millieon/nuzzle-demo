@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
+import buildStepsFromProfile from '../buildSteps'
 import styles from './HomeScreen.module.css'
 
 // ── Collision helper ──────────────────────────────────────────────────────
@@ -577,13 +578,7 @@ Return only the diary text, nothing else.`
   return data.content?.[0]?.text?.trim() || ''
 }
 
-// ── Tasks & bubbles ────────────────────────────────────────────────────────
-const TASKS = [
-  { text:'5 min breathing before work',      time:'Morning'   },
-  { text:'Write 200 words of your chapter',  time:'Afternoon' },
-  { text:'Evening walk — any length counts', time:'6 pm'      },
-  { text:'Read 15 minutes before bed',       time:'9 pm'      },
-]
+// ── Bubbles ────────────────────────────────────────────────────────────────
 const BUBBLES = [
   'Ready when you are.',
   'Good start. Keep it up.',
@@ -593,6 +588,7 @@ const BUBBLES = [
 
 // ── Main screen ────────────────────────────────────────────────────────────
 export default function HomeScreen({ go, profile, updateProfile }) {
+  const TASKS = useMemo(() => buildStepsFromProfile(profile || {}), [profile])
   const [taskIdx, setTaskIdx] = useState(0)
   const [ticked,  setTicked]  = useState(false)
   const [allDone, setAllDone] = useState(false)
