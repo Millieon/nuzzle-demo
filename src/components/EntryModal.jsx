@@ -20,6 +20,15 @@ const QUIPS = {
   dark:    'Even this. I am glad you wrote it down.',
 }
 
+// Pet responses after user saves — the companion reacts to the mood
+const PET_BY_MOOD = {
+  radiant: ["That warmth — I feel it too when you're like this.", 'Radiant days should be written down.'],
+  good:    ['I love the ones that feel light. Keep this one close.', 'Good days are worth keeping.'],
+  still:   ["That quietness — I feel it too when you're like this.", 'Calm days are worth keeping.'],
+  heavy:   ['You still showed up, even tired. That matters.', "Rest is part of the work. You're allowed."],
+  dark:    ["I'm here. That's all, for now.", "You didn't have to write today. But you did."],
+}
+
 function formatModalDate(dateStr) {
   const d = new Date(dateStr + 'T00:00:00')
   const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
@@ -27,23 +36,74 @@ function formatModalDate(dateStr) {
   return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]}`
 }
 
-export default function EntryModal({ dateStr, existingEntry, onClose, onSave }) {
+// Generate pet response via Claude API, with static fallback
+async function generatePetResponse(petName, moodKey, userText, goal) {
+  try {
+    const moodLabel = MOOD_META[moodKey]?.label || moodKey
+    const prompt = `You are ${petName}, a gentle virtual companion inside Nuzzle, a habit app.
+Your person just wrote a diary entry. Their mood is "${moodLabel}".
+${userText ? `They wrote: "${userText}"` : 'They only logged their mood, no text.'}
+${goal ? `Their goal is: "${goal}"` : ''}
+
+Write a single short sentence (max 20 words) responding to their entry — warm, quiet, present.
+No emoji. No exclamation marks. Do not use "proud", "amazing", "journey", or "you've got this".
+Speak as if you were sitting beside them. Return only your response, nothing else.`
+
+    const response = await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 60,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    })
+
+    if (!response.ok) throw new Error('API error')
+    const data = await response.json()
+    const reply = data.content?.[0]?.text?.trim()
+    if (reply) return reply
+  } catch {
+    // Fall through to static fallback
+  }
+
+  const opts = PET_BY_MOOD[moodKey] || PET_BY_MOOD.still
+  return opts[Math.floor(Math.random() * opts.length)]
+}
+
+export default function EntryModal({ dateStr, existingEntry, petEntry, petName, goal, onClose, onSave }) {
   const [mood, setMood] = useState(existingEntry?.mood || null)
   const [text, setText] = useState(existingEntry?.text || '')
-  const [mode, setMode] = useState(existingEntry ? 'read' : 'write')
+  const [mode, setMode] = useState(() => {
+    if (petEntry && !existingEntry) return 'pet'
+    if (existingEntry) return 'read'
+    return 'write'
+  })
   const [showEnergyAnim, setShowEnergyAnim] = useState(false)
+  const [saving, setSaving] = useState(false)
 
-  function handleSave() {
-    if (!mood) return
+  async function handleSave() {
+    if (!mood || saving) return
+    setSaving(true)
+
+    const petResponse = await generatePetResponse(petName || 'your companion', mood, text.trim(), goal)
+
     const entry = {
       date: dateStr,
       mood,
       text: text.trim(),
       energyGranted: MOOD_META[mood].energy,
+      petResponse,
+      petGenerated: false,
     }
     setShowEnergyAnim(true)
-    setTimeout(() => onSave(entry), 800)
+    setTimeout(() => {
+      setSaving(false)
+      onSave(entry)
+    }, 800)
   }
+
+  const name = petName || 'your companion'
 
   return (
     <>
@@ -73,11 +133,27 @@ export default function EntryModal({ dateStr, existingEntry, onClose, onSave }) 
             </button>
           </div>
 
-          {mode === 'read' ? (
+          {/* ── Pet-generated entry view ── */}
+          {mode === 'pet' && petEntry && (
             <>
-              {/* Read mode */}
+              <p className={styles.petTag}>written by {name}</p>
+              <p className={styles.readText}>{petEntry.text}</p>
+              <div className={styles.divider} />
+              <p className={styles.prompt}>Want to add your own thoughts?</p>
+              <button
+                className={styles.saveBtn}
+                onClick={() => setMode('write')}
+              >
+                Continue writing
+              </button>
+            </>
+          )}
+
+          {/* ── Read mode (user's own entry) ── */}
+          {mode === 'read' && (
+            <>
               <div className={styles.moodRow}>
-                {existingEntry?.mood && (
+                {existingEntry?.mood && MOOD_META[existingEntry.mood] && (
                   <div
                     className={`${styles.moodPill} ${styles.moodPillSelected}`}
                     style={{ background: MOOD_META[existingEntry.mood].color }}
@@ -90,14 +166,37 @@ export default function EntryModal({ dateStr, existingEntry, onClose, onSave }) 
               {existingEntry?.text && (
                 <p className={styles.readText}>{existingEntry.text}</p>
               )}
+
+              {/* Pet response */}
+              {existingEntry?.petResponse && (
+                <>
+                  <div className={styles.divider} />
+                  <p className={styles.quip}>&ldquo;{existingEntry.petResponse}&rdquo;</p>
+                  <span className={styles.petSig}>&mdash; {name}</span>
+                </>
+              )}
+
               <button className={styles.editBtn} onClick={() => setMode('write')}>
                 Edit
               </button>
             </>
-          ) : (
+          )}
+
+          {/* ── Write mode ── */}
+          {mode === 'write' && (
             <>
-              {/* Write mode */}
-              <p className={styles.prompt}>How are you today?</p>
+              {/* If pet wrote something, show it above the user's input */}
+              {petEntry && (
+                <div className={styles.petPreview}>
+                  <span className={styles.petPreviewLabel}>{name} wrote:</span>
+                  <p className={styles.petPreviewText}>&ldquo;{petEntry.text.slice(0, 100)}{petEntry.text.length > 100 ? '...' : ''}&rdquo;</p>
+                  <div className={styles.divider} />
+                </div>
+              )}
+
+              <p className={styles.prompt}>
+                {petEntry ? 'Add your own thoughts' : 'How are you today?'}
+              </p>
 
               <div className={styles.moodRow}>
                 {MOODS.map(key => {
@@ -125,6 +224,7 @@ export default function EntryModal({ dateStr, existingEntry, onClose, onSave }) 
                 value={text}
                 onChange={e => setText(e.target.value)}
                 aria-label="Journal entry"
+                autoFocus
               />
 
               <AnimatePresence>
@@ -144,10 +244,10 @@ export default function EntryModal({ dateStr, existingEntry, onClose, onSave }) 
               <div style={{ position: 'relative' }}>
                 <button
                   className={styles.saveBtn}
-                  disabled={!mood}
+                  disabled={!mood || saving}
                   onClick={handleSave}
                 >
-                  {mood ? `Save  +${MOOD_META[mood].energy} energy` : 'Select a mood to save'}
+                  {saving ? 'Sharing...' : mood ? `Share with ${name}  +${MOOD_META[mood].energy} energy` : 'Select a mood to save'}
                 </button>
 
                 <AnimatePresence>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import DotGrid from '../components/DotGrid'
 import EntryModal from '../components/EntryModal'
@@ -6,13 +6,21 @@ import PetEnergyBar from '../components/PetEnergyBar'
 import NavBar from '../components/NavBar'
 import styles from './DiaryScreen.module.css'
 
-// ── Mood metadata (shared constant) ────────────────────────────────────────
+// ── Mood metadata ──────────────────────────────────────────────────────────
 const MOOD_META = {
   radiant: { label: 'Radiant', color: '#F0C060', energy: 30 },
   good:    { label: 'Good',    color: '#82C9A0', energy: 20 },
   still:   { label: 'Still',   color: '#9EB0C8', energy: 15 },
   heavy:   { label: 'Heavy',   color: '#B8A8C8', energy: 10 },
   dark:    { label: 'Dark',    color: '#999999', energy:  8 },
+}
+
+// Map old mood keys (from HomeScreen pet-generated entries) to new ones
+const MOOD_MAP = {
+  calm: 'still', happy: 'good', proud: 'radiant',
+  grateful: 'good', tired: 'heavy', anxious: 'heavy', sad: 'dark',
+  // New moods map to themselves
+  radiant: 'radiant', good: 'good', still: 'still', heavy: 'heavy', dark: 'dark',
 }
 
 // ── Seed entries for demo ──────────────────────────────────────────────────
@@ -61,9 +69,12 @@ function currentMonthLabel() {
 }
 
 // ── Main ───────────────────────────────────────────────────────────────────
-export default function DiaryScreen({ go, profile }) {
+export default function DiaryScreen({ go, profile, updateProfile }) {
   const petName = profile?.petName || 'your companion'
+  const goal = profile?.goal || ''
+  const generatedEntry = profile?.generatedDiaryEntry || null
 
+  // --- Entries state (user entries + pet entries all live here) ---
   const [entries, setEntries] = useState(() => {
     try {
       const raw = localStorage.getItem('nuzzle-diary-entries-v2')
@@ -71,6 +82,16 @@ export default function DiaryScreen({ go, profile }) {
       if (Array.isArray(stored) && stored.length) return stored
     } catch {}
     return SEED_ENTRIES
+  })
+
+  // --- Pet entries: separate array for pet-generated diary entries ---
+  const [petEntries, setPetEntries] = useState(() => {
+    try {
+      const raw = localStorage.getItem('nuzzle-diary-pet-entries')
+      const stored = raw ? JSON.parse(raw) : null
+      if (Array.isArray(stored)) return stored
+    } catch {}
+    return []
   })
 
   const [totalEnergy, setTotalEnergy] = useState(() => {
@@ -85,13 +106,64 @@ export default function DiaryScreen({ go, profile }) {
   const [selectedDate, setSelectedDate] = useState(null)
   const [modalOpen, setModalOpen] = useState(false)
 
+  // --- Handle incoming pet-generated diary entry from HomeScreen ---
+  useEffect(() => {
+    if (!generatedEntry) return
+
+    // Normalize mood key to new system
+    const normalizedMood = MOOD_MAP[generatedEntry.mood] || 'still'
+    const petEntry = {
+      ...generatedEntry,
+      mood: normalizedMood,
+      petGenerated: true,
+    }
+
+    // Add to pet entries if not already there for that date
+    setPetEntries(prev => {
+      if (prev.some(e => e.date === petEntry.date)) return prev
+      const next = [...prev, petEntry]
+      try { localStorage.setItem('nuzzle-diary-pet-entries', JSON.stringify(next)) } catch {}
+      return next
+    })
+
+    // Also add a dot on the grid for the pet entry (if user hasn't written their own)
+    setEntries(prev => {
+      if (prev.some(e => e.date === petEntry.date)) return prev
+      const dotEntry = {
+        date: petEntry.date,
+        mood: normalizedMood,
+        text: '',
+        energyGranted: MOOD_META[normalizedMood]?.energy || 15,
+        petGenerated: true,
+      }
+      const next = [...prev, dotEntry]
+      const nextEnergy = next.reduce((sum, e) => sum + (e.energyGranted || 0), 0)
+      setTotalEnergy(nextEnergy)
+      persist(next, nextEnergy)
+      return next
+    })
+
+    // Auto-open the pet entry after a short delay
+    const timer = setTimeout(() => {
+      setSelectedDate(petEntry.date)
+      setModalOpen(true)
+    }, 400)
+
+    return () => clearTimeout(timer)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
   // Persist entries & energy
-  function persistEntries(nextEntries, nextEnergy) {
+  function persist(nextEntries, nextEnergy) {
     try {
       localStorage.setItem('nuzzle-diary-entries-v2', JSON.stringify(nextEntries))
       localStorage.setItem('nuzzle-diary-energy', String(nextEnergy))
     } catch {}
   }
+
+  // Persist entries whenever they change
+  useEffect(() => {
+    persist(entries, totalEnergy)
+  }, [entries, totalEnergy])
 
   function handleDayTap(dateStr) {
     setSelectedDate(dateStr)
@@ -99,22 +171,33 @@ export default function DiaryScreen({ go, profile }) {
   }
 
   function handleSave(entry) {
-    const isEdit = entries.some(e => e.date === entry.date)
-
+    // Replace any pet-generated placeholder with the user's real entry
     setEntries(prev => {
       const filtered = prev.filter(e => e.date !== entry.date)
       const next = [...filtered, entry]
-      // Recompute energy from scratch on edit
-      const nextEnergy = isEdit
-        ? next.reduce((sum, e) => sum + e.energyGranted, 0)
-        : totalEnergy + entry.energyGranted
+      const nextEnergy = next.reduce((sum, e) => sum + (e.energyGranted || 0), 0)
       setTotalEnergy(nextEnergy)
-      persistEntries(next, nextEnergy)
       return next
     })
 
     setModalOpen(false)
   }
+
+  // Find pet entry for the selected date (if any)
+  const selectedPetEntry = selectedDate
+    ? petEntries.find(e => e.date === selectedDate) || null
+    : null
+
+  // Find user entry for the selected date
+  const selectedUserEntry = selectedDate
+    ? entries.find(e => e.date === selectedDate && !e.petGenerated) || null
+    : null
+
+  // If there's only a pet-generated dot (no user entry), pass null as existingEntry
+  const selectedExisting = selectedDate
+    ? entries.find(e => e.date === selectedDate)
+    : null
+  const existingForModal = selectedExisting?.petGenerated ? null : selectedExisting
 
   return (
     <div className={styles.root}>
@@ -151,7 +234,10 @@ export default function DiaryScreen({ go, profile }) {
         {modalOpen && selectedDate && (
           <EntryModal
             dateStr={selectedDate}
-            existingEntry={entries.find(e => e.date === selectedDate) || null}
+            existingEntry={existingForModal}
+            petEntry={selectedPetEntry}
+            petName={petName}
+            goal={goal}
             onClose={() => setModalOpen(false)}
             onSave={handleSave}
           />

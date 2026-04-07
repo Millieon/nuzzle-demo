@@ -199,3 +199,48 @@
   color: var(--ink);
   cursor: pointer;
 }
+
+/* Pet-generated entry styles */
+.petTag {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.petSig {
+  display: block;
+  font-family: var(--sans);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.3px;
+  margin-bottom: 16px;
+}
+
+.divider {
+  height: 0.5px;
+  background: var(--rule);
+  margin: 16px 0;
+}
+
+/* Pet preview in write mode (when continuing from pet entry) */
+.petPreview {
+  margin-bottom: 8px;
+}
+.petPreviewLabel {
+  font-family: var(--sans);
+  font-size: 10.5px;
+  letter-spacing: 0.4px;
+  color: var(--muted);
+  font-style: italic;
+}
+.petPreviewText {
+  font-family: var(--serif);
+  font-size: 13.5px;
+  font-style: italic;
+  line-height: 1.6;
+  color: rgba(0,0,0,0.45);
+  margin: 6px 0 0;
+}

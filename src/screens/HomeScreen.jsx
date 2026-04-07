@@ -534,11 +534,11 @@ No emoji. No exclamation marks. Write in the register of a journal — intimate,
 Do not start with "I". Do not use the word "journey" or "proud" or "amazing".
 Return only the diary text, nothing else.`
 
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('/api/messages', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 200,
       messages: [{ role: 'user', content: prompt }],
     }),
