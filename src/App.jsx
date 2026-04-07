@@ -109,6 +109,18 @@ export default function App() {
   }, [todayKey, steps])
 
   const go = (next) => {
+    // Starting fresh onboarding — clear all session data
+    if (screen === 'welcome' && next === 'goal') {
+      setProfile({})
+      setSteps(baseSteps)
+      try {
+        localStorage.removeItem('nuzzle-profile')
+        localStorage.removeItem('nuzzle-diary-entries-v2')
+        localStorage.removeItem('nuzzle-diary-pet-entries')
+        localStorage.removeItem('nuzzle-diary-energy')
+        localStorage.removeItem(todayKey)
+      } catch {}
+    }
     setDir(SCREENS.indexOf(next) > SCREENS.indexOf(screen) ? 1 : -1)
     setScreen(next)
   }

@@ -50,9 +50,9 @@ export function GoalScreen({ go, updateProfile }) {
 
 /* ── S2: Schedule ───────────────────────────────────────────────────────── */
 export function ScheduleScreen({ go, profile, updateProfile }) {
-  const [wake, setWake]     = useState(profile.wake || '')
-  const [energy, setEnergy] = useState(profile.energy || '')
-  const [free, setFree]     = useState(profile.free || '')
+  const [wake, setWake]     = useState('')
+  const [energy, setEnergy] = useState('')
+  const [free, setFree]     = useState('')
   return (
     <div style={ROOT}>
       <TopBar onBack={() => go('goal')} onSkip={() => go('past')} step={2} total={5} />
@@ -76,7 +76,7 @@ export function ScheduleScreen({ go, profile, updateProfile }) {
 
 /* ── S3: Past attempts ──────────────────────────────────────────────────── */
 export function PastScreen({ go, profile, updateProfile }) {
-  const [val, setVal] = useState(profile.blocker || '')
+  const [val, setVal] = useState('')
   const choices = [
     { value:'restart', label:'I lost momentum after a break',  desc:'Felt too far behind to start again' },
     { value:'life',    label:'Life got in the way',            desc:'Work, illness, travel disrupted the routine' },
@@ -102,7 +102,7 @@ export function PastScreen({ go, profile, updateProfile }) {
 
 /* ── S4: Motivation ─────────────────────────────────────────────────────── */
 export function MotivationScreen({ go, profile, updateProfile }) {
-  const [val, setVal] = useState(profile.motivationStyle || '')
+  const [val, setVal] = useState('')
   const choices = [
     { value:'intrinsic', label:'Knowing why it matters to me',       desc:'Intrinsic drive — I do it because I care' },
     { value:'social',    label:'Having someone to show up for',      desc:'Social accountability — better with others' },

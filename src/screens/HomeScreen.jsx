@@ -708,8 +708,10 @@ export default function HomeScreen({ go, profile, updateProfile, steps = [], set
     window.addEventListener('pointerup', onUp)
   }
 
-  // Diary generation state
-  const [diaryState, setDiaryState] = useState('idle') // idle | generating | ready
+  // Diary generation state — skip if pet already generated for today
+  const todayStr = new Date().toISOString().slice(0, 10)
+  const alreadyGenerated = profile?.generatedDiaryEntry?.date === todayStr
+  const [diaryState, setDiaryState] = useState(alreadyGenerated ? 'done' : 'idle') // idle | generating | ready | done
   const [diaryEntry, setDiaryEntry] = useState(null)
 
   const petName = profile?.petName || 'your companion'
@@ -726,8 +728,6 @@ export default function HomeScreen({ go, profile, updateProfile, steps = [], set
   useEffect(() => {
     if (!allDone || diaryState !== 'idle') return
     setDiaryState('generating')
-
-    const todayStr = new Date().toISOString().slice(0, 10)
 
     // Small delay — let the "all done" moment breathe before showing diary
     const timer = setTimeout(async () => {
