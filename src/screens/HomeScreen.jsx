@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { useGLTF, ContactShadows } from '@react-three/drei'
 import * as THREE from 'three'
-import buildStepsFromProfile from '../buildSteps'
 import styles from './HomeScreen.module.css'
 
 // ── Collision helper ──────────────────────────────────────────────────────
@@ -587,11 +586,11 @@ const BUBBLES = [
 ]
 
 // ── Main screen ────────────────────────────────────────────────────────────
-export default function HomeScreen({ go, profile, updateProfile }) {
-  const TASKS = useMemo(() => buildStepsFromProfile(profile || {}), [profile])
-  const [taskIdx, setTaskIdx] = useState(0)
+export default function HomeScreen({ go, profile, updateProfile, steps = [], setSteps }) {
+  const TASKS = steps
+  const firstPendingIdx = TASKS.findIndex(t => t.tag !== 'done')
+  const taskIdx = firstPendingIdx === -1 ? 0 : firstPendingIdx
   const [ticked,  setTicked]  = useState(false)
-  const [allDone, setAllDone] = useState(false)
   const [flash,   setFlash]   = useState(false)
 
   const [arrangeMode, setArrangeMode] = useState(false)
@@ -742,7 +741,10 @@ export default function HomeScreen({ go, profile, updateProfile }) {
   const [diaryEntry, setDiaryEntry] = useState(null)
 
   const petName = profile?.petName || 'your companion'
-  const donePct = taskIdx / TASKS.length
+  const doneCount = TASKS.filter(t => t.tag === 'done').length
+  const hasTasks = TASKS.length > 0
+  const allDone = hasTasks && doneCount === TASKS.length
+  const donePct = TASKS.length ? (doneCount / TASKS.length) : 0
   const now     = new Date()
   const days    = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
   const months  = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
@@ -786,14 +788,14 @@ export default function HomeScreen({ go, profile, updateProfile }) {
   }, [allDone])
 
   function handleTick() {
-    if (allDone || ticked) return
+    if (allDone || ticked || !setSteps) return
     setTicked(true); setFlash(true)
     setTimeout(() => setFlash(false), 300)
     setTimeout(() => {
       setTicked(false)
-      const next = taskIdx + 1
-      if (next >= TASKS.length) setAllDone(true)
-      else setTaskIdx(next)
+      const active = TASKS.find(t => t.tag !== 'done')
+      if (!active) return
+      setSteps(prev => (prev || []).map(s => s.id === active.id ? { ...s, tag: 'done' } : s))
     }, 380)
   }
 
@@ -921,10 +923,10 @@ export default function HomeScreen({ go, profile, updateProfile }) {
           onChange={handlePosterUpload}
         />
 
-        <motion.div className={styles.bubble} key={taskIdx}
+        <motion.div className={styles.bubble} key={`${doneCount}-${TASKS.length}`}
           initial={{ opacity:0, scale:0.9 }} animate={{ opacity:1, scale:1 }} transition={{ duration:0.3 }}
         >
-          &#8220;{BUBBLES[Math.min(taskIdx, BUBBLES.length-1)]}&#8221;
+          &#8220;{BUBBLES[allDone ? BUBBLES.length - 1 : Math.min(taskIdx, BUBBLES.length - 1)]}&#8221;
         </motion.div>
 
         {!arrangeMode && (
@@ -975,7 +977,7 @@ export default function HomeScreen({ go, profile, updateProfile }) {
                 style={{ transition:'stroke-dasharray 0.6s ease' }}
               />
             </svg>
-            <span className={styles.miniCount}>{taskIdx}/{TASKS.length}</span>
+            <span className={styles.miniCount}>{doneCount}/{TASKS.length}</span>
           </div>
         </div>
 
@@ -1034,7 +1036,7 @@ export default function HomeScreen({ go, profile, updateProfile }) {
 
       {/* Task banner / all done / generating / diary invite */}
       <AnimatePresence mode="wait">
-        {!allDone ? (
+        {!allDone && hasTasks ? (
           <motion.div key={taskIdx}
             className={`${styles.banner} ${flash ? styles.bannerFlash : ''}`}
             onClick={handleTick}
@@ -1071,7 +1073,7 @@ export default function HomeScreen({ go, profile, updateProfile }) {
             initial={{ opacity:0, y:10 }} animate={{ opacity:1, y:0 }}
           >
             <span className={styles.stepText} style={{ textAlign:'center', color:'#888', fontStyle:'italic' }}>
-              All done today ✓
+              {hasTasks ? 'All done today ✓' : 'No steps yet'}
             </span>
           </motion.div>
         )}

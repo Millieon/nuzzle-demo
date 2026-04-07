@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useMemo, useRef, useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import buildStepsFromProfile from '../buildSteps'
 import styles from './CoachScreen.module.css'
@@ -117,7 +117,7 @@ const FALLBACK_REPLIES = [
 ]
 
 // ── Main ─────────────────────────────────────────────────────────────────────
-export default function CoachScreen({ go, profile }) {
+export default function CoachScreen({ go, profile, steps = [], setSteps }) {
   const petName = profile?.petName || 'your companion'
   const goal = profile?.goal || 'Build a daily writing habit'
   const tone = profile?.tone || 'steady'
@@ -127,8 +127,7 @@ export default function CoachScreen({ go, profile }) {
   const blocker = profile?.blocker || ''
   const motivationStyle = profile?.motivationStyle || ''
 
-  const [initialSteps] = useState(() => buildStepsFromProfile(profile || {}))
-  const [steps, setSteps] = useState(() => buildStepsFromProfile(profile || {}))
+  const initialSteps = useMemo(() => buildStepsFromProfile(profile || {}), [profile])
   const [greeting] = useState(() => greetingForContext(petName, goal, blocker))
   const [showRestart, setShowRestart] = useState(true)
   const [askText, setAskText] = useState('')
@@ -139,10 +138,11 @@ export default function CoachScreen({ go, profile }) {
   const hour = new Date().getHours()
   const timeLabel = hour < 12 ? 'This morning' : hour < 17 ? 'This afternoon' : 'This evening'
 
-  const doneCount = steps.filter(s => s.tag === 'done').length
+  const doneCount = (steps || []).filter(s => s.tag === 'done').length
 
   function toggleStep(id) {
-    setSteps(prev => prev.map(s => {
+    if (!setSteps) return
+    setSteps(prev => (prev || []).map(s => {
       if (s.id !== id) return s
       if (s.tag === 'done') {
         const original = initialSteps.find(ss => ss.id === id)
@@ -153,6 +153,7 @@ export default function CoachScreen({ go, profile }) {
   }
 
   function handleRestart() {
+    if (!setSteps) return
     setSteps(initialSteps.map(s => ({ ...s })))
     setShowRestart(false)
   }

@@ -1,5 +1,6 @@
-import { useState, lazy, Suspense } from 'react'
+import { useEffect, useMemo, useState, lazy, Suspense } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import buildStepsFromProfile from './buildSteps'
 
 // Text-only screens — no WebGL, load immediately
 import WelcomeScreen from './screens/WelcomeScreen'
@@ -46,6 +47,58 @@ export default function App() {
   const [screen, setScreen] = useState('welcome')
   const [profile, setProfile] = useState({})
   const [dir, setDir] = useState(1)
+  const todayKey = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    return `nuzzle-daily-steps:${todayStr}`
+  }, [])
+
+  const baseSteps = useMemo(() => buildStepsFromProfile(profile || {}), [profile])
+  const [steps, setSteps] = useState(() => baseSteps)
+
+  // Load today's steps from localStorage (once), then merge with current profile-derived steps.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(todayKey)
+      if (!raw) {
+        setSteps(baseSteps)
+        return
+      }
+      const saved = JSON.parse(raw)
+      if (!Array.isArray(saved) || !saved.length) {
+        setSteps(baseSteps)
+        return
+      }
+      // Merge: keep done state from saved, but refresh text/time from baseSteps.
+      const byId = new Map(saved.map(s => [s.id, s]))
+      const merged = baseSteps.map(s => {
+        const prev = byId.get(s.id)
+        if (!prev) return s
+        return { ...s, tag: prev.tag === 'done' ? 'done' : (s.tag || prev.tag) }
+      })
+      setSteps(merged)
+    } catch {
+      setSteps(baseSteps)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [todayKey])
+
+  // If the profile changes after initial load, refresh step text/time but preserve completion.
+  useEffect(() => {
+    setSteps(prev => {
+      if (!Array.isArray(prev) || !prev.length) return baseSteps
+      const prevById = new Map(prev.map(s => [s.id, s]))
+      return baseSteps.map(s => {
+        const old = prevById.get(s.id)
+        if (!old) return s
+        return { ...s, tag: old.tag === 'done' ? 'done' : (s.tag || old.tag) }
+      })
+    })
+  }, [baseSteps])
+
+  // Persist steps so Coach/Home stay in sync across refresh.
+  useEffect(() => {
+    try { localStorage.setItem(todayKey, JSON.stringify(steps)) } catch {}
+  }, [todayKey, steps])
 
   const go = (next) => {
     setDir(SCREENS.indexOf(next) > SCREENS.indexOf(screen) ? 1 : -1)
@@ -53,7 +106,7 @@ export default function App() {
   }
 
   const updateProfile = (key, val) => setProfile(p => ({ ...p, [key]: val }))
-  const p = { go, profile, updateProfile }
+  const p = { go, profile, updateProfile, steps, setSteps }
 
   const screenMap = {
     welcome:    <WelcomeScreen    {...p} />,
