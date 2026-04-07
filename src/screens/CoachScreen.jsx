@@ -3,9 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 import styles from './CoachScreen.module.css'
 
 // ── Greeting generator ──────────────────────────────────────────────────────
-function greetingForContext(petName, goal) {
+function greetingForContext(petName, goal, blocker) {
   const hour = new Date().getHours()
   const time = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening'
+
+  const blockerHints = {
+    restart: 'Picking back up is the hardest part — and you just did it.',
+    life: 'Life will keep interrupting. The trick is making the steps small enough to fit between.',
+    start: 'You don\'t need the full picture. Just the next step.',
+    forgot: 'Showing up here is a form of remembering.',
+    new: 'Starting fresh means no bad habits to unlearn. That\'s an advantage.',
+  }
 
   const greetings = {
     morning: [
@@ -26,29 +34,134 @@ function greetingForContext(petName, goal) {
   }
 
   const pool = greetings[time] || greetings.morning
-  return pool[Math.floor(Math.random() * pool.length)]
+  let greeting = pool[Math.floor(Math.random() * pool.length)]
+  if (blocker && blockerHints[blocker]) {
+    greeting += ' ' + blockerHints[blocker]
+  }
+  return greeting
 }
 
-// ── Seed data ────────────────────────────────────────────────────────────────
-const SEED_STEPS = [
-  { id: 1, text: '5 minutes of breathing — before anything else', time: 'Morning', tag: 'done' },
-  { id: 2, text: 'Write 200 words of your chapter', time: 'Afternoon', tag: 'now' },
-  { id: 3, text: 'Walk outside — any distance counts', time: '6 pm', tag: 'later' },
-  { id: 4, text: 'Read 15 minutes before bed', time: '9 pm', tag: 'later' },
-]
+// ── Step generation from profile ────────────────────────────────────────────
+function buildStepsFromProfile(profile) {
+  const goal = profile?.goal || ''
+  const energy = profile?.energy || 'Morning'
+  const wake = profile?.wake || '7–8am'
+  const free = profile?.free || ''
+  const motivationStyle = profile?.motivationStyle || ''
+
+  // Map wake time to morning label
+  const morningLabel = {
+    'Before 7am': '6:30 am',
+    '7–8am': '7:30 am',
+    '8–9am': '8:30 am',
+    'After 9am': '9:30 am',
+  }[wake] || '7:30 am'
+
+  // Anchor step: a small ritual tied to waking up
+  const anchor = {
+    id: 1,
+    text: '5 min breathing — before anything else',
+    time: morningLabel,
+    tag: 'now',
+  }
+
+  // Core step: directly tied to the user's stated goal
+  const goalStep = {
+    id: 2,
+    text: goalToStep(goal),
+    time: energy,
+    tag: 'later',
+  }
+
+  // Movement step: scheduled around free pockets
+  const moveTime = free.includes('Lunch break') ? 'Lunch' :
+    free.includes('After work') ? '6 pm' :
+    free.includes('Commute') ? 'Commute' : '6 pm'
+  const move = {
+    id: 3,
+    text: 'Walk outside — any distance counts',
+    time: moveTime,
+    tag: 'later',
+  }
+
+  // Reflection step: end-of-day, shaped by motivation style
+  const reflectText = {
+    intrinsic: 'Write one sentence about why today mattered',
+    social: 'Share one thing you did today with someone',
+    reward: 'Mark today\'s progress and check your streak',
+    structure: 'Review tomorrow\'s plan before bed',
+  }[motivationStyle] || 'Reflect on one small thing that went well'
+
+  const reflect = {
+    id: 4,
+    text: reflectText,
+    time: '9 pm',
+    tag: 'later',
+  }
+
+  return [anchor, goalStep, move, reflect]
+}
+
+function goalToStep(goal) {
+  const g = goal.toLowerCase()
+  if (g.includes('exercise') || g.includes('workout') || g.includes('gym') || g.includes('run'))
+    return '15 min movement — whatever feels right today'
+  if (g.includes('write') || g.includes('writing') || g.includes('journal'))
+    return 'Write 200 words — just get something down'
+  if (g.includes('meditat') || g.includes('mindful'))
+    return '10 min meditation — guided or silent'
+  if (g.includes('read'))
+    return 'Read for 15 minutes — any book counts'
+  if (g.includes('language') || g.includes('learn') || g.includes('study'))
+    return '15 min study session — one topic, focused'
+  if (g.includes('diet') || g.includes('eat') || g.includes('cook') || g.includes('health'))
+    return 'Prepare one intentional meal today'
+  if (g.includes('sleep') || g.includes('rest'))
+    return 'Start winding down 30 min before bed'
+  if (g.includes('code') || g.includes('program') || g.includes('build'))
+    return '25 min focused coding — one feature or fix'
+  if (g.includes('draw') || g.includes('paint') || g.includes('art') || g.includes('creative'))
+    return '15 min creative practice — no pressure, just do'
+  if (g.includes('music') || g.includes('instrument') || g.includes('practice'))
+    return '20 min practice — scales or a piece you enjoy'
+  // Fallback: generic but actionable
+  return 'Spend 15 focused minutes on your goal'
+}
 
 // ── Claude API call ─────────────────────────────────────────────────────
-async function askCoach(messages, { petName, goal, tone, steps }) {
+async function askCoach(messages, { petName, goal, tone, steps, wake, energy, free, blocker, motivationStyle }) {
   const hour = new Date().getHours()
   const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : hour < 21 ? 'evening' : 'night'
 
   const doneSteps = steps.filter(s => s.tag === 'done').map(s => s.text)
   const pendingSteps = steps.filter(s => s.tag !== 'done').map(s => `${s.text} (${s.time})`)
 
+  const blockerContext = {
+    restart: 'They have tried before and fallen off — be encouraging about restarting without minimizing the difficulty.',
+    life: 'Life events tend to derail them — help them build flexibility into their plan.',
+    start: 'They struggle with getting started — focus on removing friction and lowering the bar.',
+    forgot: 'They tend to forget — suggest anchoring habits to existing routines.',
+    new: 'This is new territory for them — normalize the learning curve.',
+  }
+
+  const motivationContext = {
+    intrinsic: 'They are internally motivated — connect suggestions to meaning and personal growth.',
+    social: 'They are socially motivated — suggest sharing progress or accountability.',
+    reward: 'They respond to rewards and streaks — reference progress tracking.',
+    structure: 'They thrive with structure — give clear, specific plans.',
+  }
+
   const system = `You are a gentle, thoughtful habit coach inside Nuzzle, a companion app. The user has a virtual pet named "${petName}".
 Their active goal is: "${goal}"
 Preferred tone: ${tone}
 It is currently ${timeOfDay}.
+
+User's behavioral profile:
+- Wake time: ${wake || 'not specified'}
+- Peak energy: ${energy || 'not specified'}
+- Free time pockets: ${free || 'not specified'}
+- Past blocker: ${blocker || 'not specified'}${blocker && blockerContext[blocker] ? '. ' + blockerContext[blocker] : ''}
+- Motivation style: ${motivationStyle || 'not specified'}${motivationStyle && motivationContext[motivationStyle] ? '. ' + motivationContext[motivationStyle] : ''}
 
 Today's progress:
 - Done: ${doneSteps.length ? doneSteps.join(', ') : 'nothing yet'}
@@ -56,10 +169,11 @@ Today's progress:
 
 Guidelines:
 - Be warm but not performative. No exclamation marks. No emoji.
-- Keep replies to 2-3 sentences. Be specific to their situation.
+- Keep replies to 2-3 sentences. Be specific to their situation and behavioral profile.
 - Never say "proud", "amazing", "journey", or "you've got this".
 - Speak like a thoughtful friend who's been paying attention, not a motivational poster.
-- If they ask about strategy, give one concrete suggestion. Don't list options.`
+- Reference their schedule, energy patterns, and blockers when relevant.
+- If they ask about strategy, give one concrete suggestion tailored to their profile. Don't list options.`
 
   const apiMessages = messages.map(m => ({
     role: m.type === 'user' ? 'user' : 'assistant',
@@ -93,9 +207,15 @@ export default function CoachScreen({ go, profile }) {
   const petName = profile?.petName || 'your companion'
   const goal = profile?.goal || 'Build a daily writing habit'
   const tone = profile?.tone || 'steady'
+  const wake = profile?.wake || '7–8am'
+  const energy = profile?.energy || 'Morning'
+  const free = profile?.free || ''
+  const blocker = profile?.blocker || ''
+  const motivationStyle = profile?.motivationStyle || ''
 
-  const [steps, setSteps] = useState(SEED_STEPS)
-  const [greeting] = useState(() => greetingForContext(petName, goal))
+  const [initialSteps] = useState(() => buildStepsFromProfile(profile || {}))
+  const [steps, setSteps] = useState(() => buildStepsFromProfile(profile || {}))
+  const [greeting] = useState(() => greetingForContext(petName, goal, blocker))
   const [showRestart, setShowRestart] = useState(true)
   const [askText, setAskText] = useState('')
   const [replies, setReplies] = useState([])
@@ -111,17 +231,15 @@ export default function CoachScreen({ go, profile }) {
     setSteps(prev => prev.map(s => {
       if (s.id !== id) return s
       if (s.tag === 'done') {
-        // un-check: find the right tag based on position
-        const idx = SEED_STEPS.findIndex(ss => ss.id === id)
-        return { ...s, tag: SEED_STEPS[idx]?.tag || 'later' }
+        const original = initialSteps.find(ss => ss.id === id)
+        return { ...s, tag: original?.tag || 'later' }
       }
       return { ...s, tag: 'done' }
     }))
   }
 
   function handleRestart() {
-    // Reset all steps, dismiss banner
-    setSteps(SEED_STEPS.map(s => ({ ...s, tag: s.tag === 'done' ? SEED_STEPS.find(ss => ss.id === s.id)?.tag || 'later' : s.tag })))
+    setSteps(initialSteps.map(s => ({ ...s })))
     setShowRestart(false)
   }
 
@@ -134,7 +252,7 @@ export default function CoachScreen({ go, profile }) {
     setTyping(true)
 
     try {
-      const reply = await askCoach(updated, { petName, goal, tone, steps })
+      const reply = await askCoach(updated, { petName, goal, tone, steps, wake, energy, free, blocker, motivationStyle })
       setReplies(prev => [...prev, { type: 'coach', text: reply }])
     } catch {
       const fallback = FALLBACK_REPLIES[Math.floor(Math.random() * FALLBACK_REPLIES.length)]
