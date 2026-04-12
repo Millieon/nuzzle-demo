@@ -11,6 +11,7 @@
   display: flex;
   align-items: center;
   padding: 52px 20px 12px;
+  gap: 12px;
   flex-shrink: 0;
 }
 .backBtn {
@@ -19,127 +20,352 @@
   background: none; border: none; cursor: pointer;
   border-radius: 50%;
   transition: background 0.15s;
-  flex-shrink: 0;
 }
 .backBtn:active { background: rgba(0,0,0,0.05); }
-
-.headerCenter {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-}
 .headerTitle {
   font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
   color: #111;
-}
-.headerGoal {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  color: #999;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 
-/* ── Message list ───────────────────────────────────────────────────── */
-.messageList {
+/* ── Scrollable content ─────────────────────────────────────────────── */
+.scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 20px 8px;
+  padding: 0 20px 120px;
   display: flex;
   flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Greeting card (dark, full-width) ────────────────────────────────── */
+.greeting {
+  background: #1A1A1A;
+  border-radius: 18px;
+  padding: 24px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.greetingPetRow {
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
-
-.msgRow {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-  max-width: 85%;
-}
-.msgRowCoach {
-  align-self: flex-start;
-  flex-direction: row;
-}
-.msgRowUser {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-}
-
-/* ── Avatar ──────────────────────────────────────────────────────────── */
-.avatar {
-  width: 28px; height: 28px;
+.greetingPetDot {
+  width: 32px; height: 32px;
   border-radius: 50%;
-  background: #1A1A1A;
+  background: rgba(255,255,255,0.08);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
+.greetingPetDot svg { opacity: 0.5; }
+.greetingPetStatus {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.06em;
+}
+.greetingText {
+  font-family: 'Playfair Display', serif;
+  font-size: 19px;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.88);
+  font-weight: 400;
+}
+.greetingTime {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: rgba(255,255,255,0.22);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
 
-/* ── Bubbles ─────────────────────────────────────────────────────────── */
-.bubble {
-  padding: 12px 16px;
+/* ── Active goal card ────────────────────────────────────────────────── */
+.goalCard {
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+.goalIcon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: #F0EDE8;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.goalBody { flex: 1; min-width: 0; }
+.goalLabel {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+.goalTitle {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  color: #111;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+.goalSub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  color: #999;
+  line-height: 1.45;
+}
+
+/* ── Pinned AI plan card ─────────────────────────────────────────────── */
+.planCard {
+  background: #fff;
+  border: 0.5px solid rgba(0,0,0,0.07);
+  border-radius: 14px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.planHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 0.5px solid rgba(0,0,0,0.06);
+}
+.planHeaderLabel {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #888;
+}
+.planBody {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #333;
+  line-height: 1.55;
+}
+
+/* Markdown rendering */
+.mdHeading {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #111;
+  margin-top: 6px;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.mdPara {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.55;
+  margin-bottom: 2px;
+}
+.mdListItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  color: #444;
+  line-height: 1.55;
+  margin-bottom: 2px;
+}
+.mdListNum {
+  color: #999;
+  font-weight: 600;
+  flex-shrink: 0;
+  min-width: 16px;
+}
+.mdBullet {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: #ccc;
+  flex-shrink: 0;
+  margin-top: 7px;
+}
+.mdIndented {
+  padding-left: 16px;
+}
+
+/* ── Steps section ───────────────────────────────────────────────────── */
+.stepsHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+.stepsTitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #aaa;
+}
+.stepsCount {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: #ccc;
+}
+
+.stepsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 0.5px solid rgba(0,0,0,0.06);
+}
+.step:last-child { border-bottom: none; }
+
+.stepCheck {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  margin-top: 1px;
+}
+.stepCheck:active { transform: scale(0.9); }
+.stepCheckDone {
+  background: #111;
+  border-color: #111;
+}
+
+.stepBody { flex: 1; min-width: 0; }
+.stepText {
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
-  line-height: 1.55;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-}
-.bubbleCoach {
-  background: #fff;
   color: #111;
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+.stepTextDone {
+  color: #bbb;
+  text-decoration: line-through;
+  text-decoration-color: rgba(0,0,0,0.15);
+}
+.stepMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stepTag {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+.tagDone {
+  background: rgba(0,0,0,0.05);
+  color: #bbb;
+}
+.tagNow {
+  background: #111;
+  color: #fff;
+}
+.tagLater {
+  background: rgba(0,0,0,0.04);
+  color: #aaa;
+}
+
+.stepTime {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  color: #ccc;
+}
+
+/* ── Coach reply bubble ──────────────────────────────────────────────── */
+.replyBubble {
+  background: #fff;
   border: 0.5px solid rgba(0,0,0,0.07);
   border-radius: 4px 16px 16px 16px;
+  padding: 16px 18px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
 }
-.bubbleUser {
+.replySig {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.replySigDot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #C8C4BC;
+}
+.replySigName {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #aaa;
+}
+.replyText {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+}
+
+/* ── User message bubble ─────────────────────────────────────────────── */
+.userBubble {
+  align-self: flex-end;
   background: #111;
   color: #fff;
   border-radius: 16px 16px 4px 16px;
+  padding: 12px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  max-width: 80%;
+  line-height: 1.5;
 }
 
-/* ── Loading dots ────────────────────────────────────────────────────── */
-.dots {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  height: 20px;
-}
-.dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #ccc;
-  display: inline-block;
-  animation: coachBounce 0.9s ease-in-out infinite;
-}
-@keyframes coachBounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30%           { transform: translateY(-4px); opacity: 1; }
-}
-
-/* ── Input bar ───────────────────────────────────────────────────────── */
-.inputBar {
-  flex-shrink: 0;
+/* ── Ask your coach ──────────────────────────────────────────────────── */
+.askWrap {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
   padding: 12px 20px 36px;
-  background: #F5F5F3;
+  background: linear-gradient(180deg, rgba(245,245,243,0) 0%, #F5F5F3 28%);
+  z-index: 10;
 }
-.inputPill {
+.askInner {
   display: flex;
   align-items: flex-end;
   gap: 10px;
   background: #fff;
   border: 0.5px solid rgba(0,0,0,0.1);
   border-radius: 24px;
-  padding: 6px 6px 6px 18px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  padding: 6px 6px 6px 16px;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
 }
-.input {
+.askInput {
   flex: 1;
   border: none;
   outline: none;
@@ -154,11 +380,10 @@
   line-height: 1.45;
   overflow-y: auto;
 }
-.input::placeholder {
+.askInput::placeholder {
   color: #bbb;
 }
-
-.sendBtn {
+.askSend {
   width: 36px; height: 36px;
   border-radius: 50%;
   background: #111;
@@ -168,8 +393,25 @@
   flex-shrink: 0;
   transition: opacity 0.15s;
 }
-.sendBtn:disabled {
+.askSend:disabled {
   opacity: 0.25;
   cursor: default;
 }
-.sendBtn:active:not(:disabled) { opacity: 0.7; }
+.askSend:active:not(:disabled) { opacity: 0.7; }
+
+/* ── Typing indicator ────────────────────────────────────────────────── */
+.typing {
+  display: flex;
+  gap: 4px;
+  padding: 4px 0;
+}
+.typing span {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #ccc;
+  animation: coachPulse 1.2s ease-in-out infinite;
+}
+@keyframes coachPulse {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+  30%           { transform: translateY(-4px); opacity: 1; }
+}
